@@ -176,7 +176,6 @@ public class WorldsTeleop  extends LinearOpMode {
             robot.leftback.setPower(leftBackPower * DEBUG_MODE_POWER_MULTIPLIER);
             robot.rightfront.setPower(rightFrontPower * DEBUG_MODE_POWER_MULTIPLIER);
             robot.rightback.setPower(rightBackPower * DEBUG_MODE_POWER_MULTIPLIER);
-            robot.dumper.setPosition(0);;
             robot.dumperextension.setPower(dumperExtensionPower * DEBUG_MODE_POWER_MULTIPLIER);
 //            robot.intakeright.setPower(intakeRightPower * DEBUG_MODE_POWER_MULTIPLIER);
 //            robot.intakeleft.setPower(intakeLeftPower * DEBUG_MODE_POWER_MULTIPLIER);
@@ -186,7 +185,6 @@ public class WorldsTeleop  extends LinearOpMode {
             robot.leftback.setPower(leftBackPower);
             robot.rightfront.setPower(rightFrontPower);
             robot.rightback.setPower(rightBackPower);
-            robot.dumper.setPosition(1);
             robot.dumperextension.setPower(dumperExtensionPower);
 //            robot.intakeright.setPower(intakeRightPower);
 //            robot.intakeleft.setPower(intakeLeftPower);
@@ -195,6 +193,7 @@ public class WorldsTeleop  extends LinearOpMode {
 
         robot.intakeliftright.setPosition(intakelift * 0.02 + robot.intakeliftright.getPosition());
         robot.intakeliftleft.setPosition(intakelift * 0.02 + robot.intakeliftleft.getPosition());
+        robot.dumper.setPosition(dumperPower * 0.02 + robot.dumper.getPosition());
     }
 
     private GameMode nextMode(GameMode m) {

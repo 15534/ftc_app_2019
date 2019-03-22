@@ -50,14 +50,11 @@ public class HardwareWorldsRobot {
         intakeliftleft = hwMap.get(Servo.class, "liftleft");
         intakeliftright = hwMap.get(Servo.class, "liftright");
 
-
-
         leftfront.setDirection(DcMotor.Direction.REVERSE);
         rightfront.setDirection(DcMotor.Direction.FORWARD);
         leftback.setDirection(DcMotor.Direction.REVERSE);
         rightback.setDirection(DcMotor.Direction.FORWARD);
         actuator.setDirection(DcMotor.Direction.REVERSE);
-
 
         leftfront.setPower(0);
         rightfront.setPower(0);
@@ -67,8 +64,6 @@ public class HardwareWorldsRobot {
 
         // Initialize dumper servo
         dumper = hwMap.get(Servo.class, "dumper");
-        dumper.setDirection(Servo.Direction.REVERSE);
-
 
         phone = hwMap.get(Servo.class, "phone");
         phone.setDirection(Servo.Direction.REVERSE);
@@ -81,9 +76,9 @@ public class HardwareWorldsRobot {
         intakeextension.setPower(0);
         intakeextension.setDirection(DcMotorSimple.Direction.FORWARD);
 
-
         intakeliftleft.setDirection(Servo.Direction.FORWARD);
         intakeliftright.setDirection(Servo.Direction.REVERSE);
+        dumper.setDirection(Servo.Direction.REVERSE);
     }
 
 }
