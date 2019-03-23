@@ -114,8 +114,11 @@ public class WorldsTeleop  extends LinearOpMode {
             if (gamepad2.a) {
                 robot.intake.setPower(-0.8);
             }
+            if (gamepad2.y) {
+                robot.intake.setPower(-0.1);
+            }
             if (gamepad2.b){
-                    robot.intake.setPower(0.8);
+                robot.intake.setPower(0.8);
             }
             if (gamepad2.x){
                 robot.intake.setPower(0);
@@ -191,8 +194,8 @@ public class WorldsTeleop  extends LinearOpMode {
             robot.intakeextension.setPower(intakeExtensionPower);
         }
 
-        robot.intakeliftright.setPosition(intakelift * 0.02 + robot.intakeliftright.getPosition());
-        robot.intakeliftleft.setPosition(intakelift * 0.02 + robot.intakeliftleft.getPosition());
+        robot.intakeliftright.setPosition(-intakelift * 0.02 + robot.intakeliftright.getPosition());
+        robot.intakeliftleft.setPosition(-intakelift * 0.02 + robot.intakeliftleft.getPosition());
         robot.dumper.setPosition(dumperPower * 0.02 + robot.dumper.getPosition());
     }
 
