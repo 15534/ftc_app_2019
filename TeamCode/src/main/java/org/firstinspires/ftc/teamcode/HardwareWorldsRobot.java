@@ -32,6 +32,8 @@ public class HardwareWorldsRobot {
     public Servo intakeliftleft;
     public Servo intakeliftright;
 
+    public Rev2mDistanceSensor rightfrontsensor, rightbacksensor, bottomsensor, backsensor;
+
 
     HardwareMap hwMap = null;
     private ElapsedTime period = new ElapsedTime();
@@ -79,6 +81,12 @@ public class HardwareWorldsRobot {
         intakeliftleft.setDirection(Servo.Direction.FORWARD);
         intakeliftright.setDirection(Servo.Direction.REVERSE);
         dumper.setDirection(Servo.Direction.REVERSE);
+
+        // initialize distance sensors
+        rightfrontsensor = hwMap.get(Rev2mDistanceSensor.class, "rightFront");
+        rightbacksensor = hwMap.get(Rev2mDistanceSensor.class, "rightBack");
+        backsensor = hwMap.get(Rev2mDistanceSensor.class, "back");
+        bottomsensor = hwMap.get(Rev2mDistanceSensor.class, "bottom");
     }
 
 }
