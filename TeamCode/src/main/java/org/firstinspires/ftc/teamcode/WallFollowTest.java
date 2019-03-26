@@ -19,12 +19,26 @@ public class WallFollowTest extends LinearOpMode {
         telemetry.addData("Say", "Hello Driver");
         telemetry.update();
         waitForStart();
+
+        double front, back, theta, leftPower, rightPower;
+        final double speed = 0.2;
         while (opModeIsActive()) {
-            telemetry.addData("rightfront", robot.rightfrontsensor.getDistance(DistanceUnit.INCH));
-            telemetry.addData("rightback", robot.rightbacksensor.getDistance(DistanceUnit.INCH));
-            telemetry.addData("back", robot.backsensor.getDistance(DistanceUnit.INCH));
-            telemetry.addData("bottom", robot.bottomsensor.getDistance(DistanceUnit.INCH));
+            front = robot.rightfrontsensor.getDistance(DistanceUnit.INCH);
+            back = robot.rightbacksensor.getDistance(DistanceUnit.INCH);
+            telemetry.addData("rightfront", front);
+            telemetry.addData("rightback", back);
+//            telemetry.addData("back", robot.backsensor.getDistance(DistanceUnit.INCH));
+//            telemetry.addData("bottom", robot.bottomsensor.getDistance(DistanceUnit.INCH));
+            theta = theta(front, back);
+            telemetry.addData("theta", theta);
+
             telemetry.update();
         }
     }
+
+    double theta (double front, double back) {
+        return Math.atan((back-front) / robot.distanceBetweenRightDistance) * 360 / (2 * Math.PI);
+    }
+
+
 }

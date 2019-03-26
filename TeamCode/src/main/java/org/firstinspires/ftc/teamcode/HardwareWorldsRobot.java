@@ -31,6 +31,7 @@ public class HardwareWorldsRobot {
     public CRServo intake;
     public Servo intakeliftleft;
     public Servo intakeliftright;
+    public final double distanceBetweenRightDistance = 36.85 / 2.54;
 
     public Rev2mDistanceSensor rightfrontsensor, rightbacksensor, bottomsensor, backsensor;
 
