@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -31,6 +33,7 @@ public class HardwareWorldsRobot {
     public CRServo intake;
     public Servo intakeliftleft;
     public Servo intakeliftright;
+    public BNO055IMU imu;
     public final double distanceBetweenRightDistance = 36.85 / 2.54;
 
     public Rev2mDistanceSensor rightfrontsensor, rightbacksensor, bottomsensor, backsensor;
@@ -88,6 +91,13 @@ public class HardwareWorldsRobot {
         rightbacksensor = hwMap.get(Rev2mDistanceSensor.class, "rightBack");
         backsensor = hwMap.get(Rev2mDistanceSensor.class, "back");
         bottomsensor = hwMap.get(Rev2mDistanceSensor.class, "bottom");
-    }
 
+
+        // We are expecting the IMU to be attached to an I2C port on a Core Device Interface Module and named "imu".
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.loggingEnabled = true;
+        parameters.loggingTag     = "IMU";
+        imu = hwMap.get(BNO055IMU.class, "imu");
+        imu.initialize(parameters);
+    }
 }
