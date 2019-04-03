@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -33,12 +34,12 @@ public class WorldAuto extends LinearOpMode {
      * Detection engine.
      */
     private TFObjectDetector tfod;
+    private ElapsedTime runtime = new ElapsedTime();
+
 
     @Override
     public void runOpMode() {
         robot.init(hardwareMap);
-        robot.phone.setPosition(0.3 + robot.phone.getPosition());
-        telemetry.addData("phone servo running", true);
         front = robot.rightfrontsensor.getDistance(DistanceUnit.INCH);
         back = robot.rightbacksensor.getDistance(DistanceUnit.INCH);
 
@@ -52,44 +53,67 @@ public class WorldAuto extends LinearOpMode {
             telemetry.addData("Sorry!", "This device is not compatible with TFOD");
         }
 
+        if (tfod != null) {
+            tfod.activate();
+        }
+
         /** Wait for the game to begin */
-        telemetry.addData(">", "Press Play to start tracking");
+        telemetry.addData(">", "Init Successful");
         telemetry.update();
         waitForStart();
-        int goldposition;
 
         if (opModeIsActive()) {
+
+//            robot.phone.setPower(-1);
+//            sleep(200);
+//            robot.phone.setPower(0.2);
+//            sleep(200);
+//            robot.phone.setPower(0);
+
             /** Activate Tensor Flow Object Detection. */
-            sleep(200);
-            if (tfod != null) {
-                tfod.activate();
-            }
-            List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-            if (updatedRecognitions != null) {
-                telemetry.addData("# Object Detected", updatedRecognitions.size());
-                int goldMineralX = -1;
-                for (Recognition recognition : updatedRecognitions) {
-                  if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                    goldMineralX = (int) recognition.getLeft();
-                  }
-                }
+            int position = -1;
 
-              telemetry.addData("Gold Mineral X: ", goldMineralX);
-              telemetry.update();
-            }
+            runtime.reset();
 
+            while (opModeIsActive() && runtime.seconds() < 3) {
+                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    if (updatedRecognitions != null) {
+                        int goldMineralX = -1;
+                        for (Recognition recognition : updatedRecognitions) {
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                                goldMineralX = (int) recognition.getLeft();
+                            }
+                        }
+
+                        if (goldMineralX > 830 && goldMineralX < 1300) position = 1;
+                        if (goldMineralX < 830 && goldMineralX > 300) position = 0;
+                    }
+            }
 
             if (tfod != null) {
                 tfod.shutdown();
             }
 
-
-            while(bottom() > 1.83){
-                robot.actuator.setPower(1);
+            if (position == -1) {
+                telemetry.addData("mineral", "left");
             }
-            robot.actuator.setPower(0.2);
-            sleep(300);
-            robot.actuator.setPower(0);
+            else if (position == 0) {
+                telemetry.addData("mineral", "center");
+            }
+            else {
+                telemetry.addData("mineral", "right");
+            }
+            telemetry.update();
+            sleep(10000);
+
+
+//
+//            while(bottom() > 1.83){
+//                robot.actuator.setPower(1);
+//            }
+//            robot.actuator.setPower(0.2);
+//            sleep(300);
+//            robot.actuator.setPower(0);
 
         }
     }
@@ -125,5 +149,20 @@ public class WorldAuto extends LinearOpMode {
 
     private double bottom() {
         return robot.bottomsensor.getDistance(DistanceUnit.INCH);
+    }
+
+    private int goldMineralX() {
+        List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+        if (updatedRecognitions != null) {
+//            telemetry.addData("# Object Detected", updatedRecognitions.size());
+            int goldMineralX = -1;
+            for (Recognition recognition : updatedRecognitions) {
+                if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
+                    goldMineralX = (int) recognition.getLeft();
+                }
+            }
+            return goldMineralX;
+        }
+        return -2;
     }
 }
