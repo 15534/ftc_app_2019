@@ -24,7 +24,7 @@ public class HardwareWorldsRobot {
     public DcMotor rightback;
     public DcMotor leftback;
 
-    public CRServo phone;
+    public Servo phone;
 
     public DcMotor intakeextension;
     public DcMotor dumperextension;
@@ -71,8 +71,10 @@ public class HardwareWorldsRobot {
         // Initialize dumper servo
         dumper = hwMap.get(Servo.class, "dumper");
 
-        phone = hwMap.get(CRServo.class, "phone");
-        phone.setDirection(CRServo.Direction.REVERSE);
+        phone = hwMap.get(Servo.class, "phone");
+        phone.setDirection(Servo.Direction.REVERSE);
+        // phone is up = 1.0, phone is down = 0.69
+        phone.scaleRange(0.69, 1.0);
 
         // Initialize extension motors
         dumperextension = hwMap.get(DcMotor.class, "dumperextension");

@@ -64,18 +64,17 @@ public class WorldAuto extends LinearOpMode {
 
         if (opModeIsActive()) {
 
-//            robot.phone.setPower(-1);
-//            sleep(200);
-//            robot.phone.setPower(0.2);
-//            sleep(200);
-//            robot.phone.setPower(0);
+            robot.phone.setPosition(0);
+            sleep(1000);
 
             /** Activate Tensor Flow Object Detection. */
             int position = -1;
 
             runtime.reset();
 
-            while (opModeIsActive() && runtime.seconds() < 3) {
+            // detect mineral position
+
+            while (opModeIsActive() && runtime.seconds() < 2) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     if (updatedRecognitions != null) {
                         int goldMineralX = -1;
@@ -104,14 +103,15 @@ public class WorldAuto extends LinearOpMode {
                 telemetry.addData("mineral", "right");
             }
             telemetry.update();
-            sleep(10000);
-
 
 //
-//            while(bottom() > 1.83){
-//                robot.actuator.setPower(1);
+//            double bottom;
+//            while (opModeIsActive()) {
+//                bottom = bottom();
+//                telemetry.addData("bottom", bottom);
+//                robot.actuator.setPower(Math.max(bottom, 1));
 //            }
-//            robot.actuator.setPower(0.2);
+//
 //            sleep(300);
 //            robot.actuator.setPower(0);
 
@@ -148,7 +148,8 @@ public class WorldAuto extends LinearOpMode {
     }
 
     private double bottom() {
-        return robot.bottomsensor.getDistance(DistanceUnit.INCH);
+        double bottom = robot.bottomsensor.getDistance(DistanceUnit.INCH);
+        return bottom;
     }
 
     private int goldMineralX() {
