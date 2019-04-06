@@ -104,7 +104,6 @@ public class WorldAuto extends LinearOpMode {
             }
             telemetry.update();
 
-
             double bottom = 10;
              robot.actuator.setPower(1);
             while (opModeIsActive() && bottom > 1.86) {
@@ -113,20 +112,22 @@ public class WorldAuto extends LinearOpMode {
             }
             sleep(100);
             robot.actuator.setPower(0);
-                             sleep(100);
-                                        robot.actuator.setPower(0);
 
-                                        drive(0.6);
-                                        sleep(200);
-                                        drive(0);
+            moveTank(0.6, -4, -4, 3, false);
+            strafe(0.4, 2, 2, false);
+            moveTank(0.6, 4, 4, 3, false);
+            //90 dergee turn
+            moveTank(0.6, 10.5, -10.5, 5, false);
 
-                                        strafe(0.4);
-                                        sleep(100);
-                                        strafe(0);
-
-                                        drive(-0.6);
-                                        sleep(200);
-                                        drive(0);
+            if(position == -1){//left
+                strafe(STRAFE_SPEED, -16, 10, false);
+                moveTank(0.6, 8, 8, 6, false);
+            }if(position == 0){//center
+                moveTank(0.6, 4, 4, 5, false);
+            }else{//right
+                strafe(STRAFE_SPEED, 15, 10, false);
+                moveTank(0.6, 8, 8, 6, false);
+            }
 
 
         }
@@ -141,12 +142,6 @@ public class WorldAuto extends LinearOpMode {
     robot.leftback.setPower(power);
     robot.rightback.setPower(power);
     }
-        private void strafe(double power) {
-            robot.leftfront.setPower(power);
-            robot.rightback.setPower(power);
-            robot.rightfront.setPower(power);
-            robot.leftback.setPower(power);
-        }
 
     private void initVuforia() {
         /*
@@ -193,4 +188,152 @@ public class WorldAuto extends LinearOpMode {
         }
         return -2;
     }
+
+    public boolean strafe(double speed,
+                              double inches,
+                              double timeoutS, boolean withDetector) {
+
+            int newFrontLeftTarget, newBackLeftTarget, newFrontRightTarget, newBackRightTarget;
+
+            // Ensure that the opmode is still active
+            if (opModeIsActive()) {
+
+                // Determine new target position, and pass to motor controller
+                newFrontLeftTarget = robot.leftFrontDrive.getCurrentPosition() - (int)(inches * COUNTS_PER_INCH);
+                newBackLeftTarget = robot.leftBackDrive.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
+                newFrontRightTarget = robot.rightFrontDrive.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
+                newBackRightTarget = robot.rightBackDrive.getCurrentPosition() - (int)(inches * COUNTS_PER_INCH);
+
+                robot.leftFrontDrive.setTargetPosition(newFrontLeftTarget);
+                robot.leftBackDrive.setTargetPosition(newBackLeftTarget);
+                robot.rightFrontDrive.setTargetPosition(newFrontRightTarget);
+                robot.rightBackDrive.setTargetPosition(newBackRightTarget);
+
+                // Turn On RUN_TO_POSITION
+                robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                // reset the timeout time and start motion.
+                runtime.reset();
+                robot.leftBackDrive.setPower(Math.abs(speed) * Math.signum(inches));
+                robot.rightBackDrive.setPower(Math.abs(speed) * Math.signum(inches));
+                robot.leftFrontDrive.setPower(Math.abs(speed) * Math.signum(inches));
+                robot.rightFrontDrive.setPower(Math.abs(speed) * Math.signum(inches));
+
+                // keep looping while we are still active, and there is time left, and both motors are running.
+                // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+                // its target position, the motion will stop.  This is "safer" in the event that the robot will
+                // always end the motion as soon as possible.
+                // However, if you require that BOTH motors have finished their moves before the robot continues
+                // onto the next step, use (isBusy() || isBusy()) in the loop test.
+                while (opModeIsActive() &&
+                        (runtime.seconds() < timeoutS) &&
+                        (robot.rightBackDrive.isBusy() && robot.rightFrontDrive.isBusy()
+                                && robot.leftBackDrive.isBusy() && robot.leftFrontDrive.isBusy())
+                        && (!withDetector || !detector.getAligned())) {
+
+                    // Display it for the driver.
+                    telemetry.addData("Current",  "Running to %7d :%7d", newBackLeftTarget,  newBackRightTarget);
+                    telemetry.addData("backRight",  "Running at bl: %7d, fl: %7d, br: %7d, fr: %7d",
+                            robot.leftBackDrive.getCurrentPosition(),
+                            robot.leftFrontDrive.getCurrentPosition(),
+                            robot.rightBackDrive.getCurrentPosition(),
+                            robot.rightFrontDrive.getCurrentPosition());
+
+                    telemetry.update();
+                }
+
+                // Stop all motion;
+                robot.rightFrontDrive.setPower(0);
+                robot.leftFrontDrive.setPower(0);
+                robot.rightBackDrive.setPower(0);
+                robot.leftBackDrive.setPower(0);
+
+                // Turn off RUN_TO_POSITION
+                robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                sleep(MOVE_DELAY);
+
+                if (detector.getAligned()) return true;
+
+            }
+            return false;
+        }
+
+        public void moveTank(double speed,
+                                 double leftInches, double rightInches,
+                                 double timeoutS, boolean withDetector) {
+
+                int newFrontLeftTarget, newBackLeftTarget, newFrontRightTarget, newBackRightTarget;
+
+                // Ensure that the opmode is still active
+                if (opModeIsActive()) {
+
+                    // Determine new target position, and pass to motor controller
+                    newFrontLeftTarget = robot.leftFrontDrive.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
+                    newBackLeftTarget = robot.leftBackDrive.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
+                    newFrontRightTarget = robot.rightFrontDrive.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
+                    newBackRightTarget = robot.rightBackDrive.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
+
+                    robot.leftFrontDrive.setTargetPosition(newFrontLeftTarget);
+                    robot.leftBackDrive.setTargetPosition(newBackLeftTarget);
+                    robot.rightFrontDrive.setTargetPosition(newFrontRightTarget);
+                    robot.rightBackDrive.setTargetPosition(newBackRightTarget);
+
+                    // Turn On RUN_TO_POSITION
+                    robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+                    // reset the timeout time and start motion.
+                    runtime.reset();
+                    robot.leftBackDrive.setPower(Math.abs(speed));
+                    robot.rightBackDrive.setPower(Math.abs(speed));
+                    robot.leftFrontDrive.setPower(Math.abs(speed));
+                    robot.rightFrontDrive.setPower(Math.abs(speed));
+
+                    // keep looping while we are still active, and there is time left, and both motors are running.
+                    // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+                    // its target position, the motion will stop.  This is "safer" in the event that the robot will
+                    // always end the motion as soon as possible.
+                    // However, if you require that BOTH motors have finished their moves before the robot continues
+                    // onto the next step, use (isBusy() || isBusy()) in the loop test.
+                    while (opModeIsActive() &&
+                            (runtime.seconds() < timeoutS) &&
+                            (robot.rightBackDrive.isBusy() && robot.rightFrontDrive.isBusy()
+                                    && robot.leftBackDrive.isBusy() && robot.leftFrontDrive.isBusy()) && (!withDetector || !detector.getAligned())) {
+
+                        // Display it for the driver.
+                        telemetry.addData("Current",  "Running to %7d :%7d", newBackLeftTarget,  newBackRightTarget);
+                        telemetry.addData("backRight",  "Running at bl: %7d, fl: %7d, br: %7d, fr: %7d",
+                                robot.leftBackDrive.getCurrentPosition(),
+                                robot.leftFrontDrive.getCurrentPosition(),
+                                robot.rightBackDrive.getCurrentPosition(),
+                                robot.rightFrontDrive.getCurrentPosition());
+
+                        telemetry.update();
+                    }
+
+                    // Stop all motion;
+                    robot.rightFrontDrive.setPower(0);
+                    robot.leftFrontDrive.setPower(0);
+                    robot.rightBackDrive.setPower(0);
+                    robot.leftBackDrive.setPower(0);
+
+                    // Turn off RUN_TO_POSITION
+                    robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                    // Delay after movement
+                    sleep(MOVE_DELAY);
+                }
+            }
 }
