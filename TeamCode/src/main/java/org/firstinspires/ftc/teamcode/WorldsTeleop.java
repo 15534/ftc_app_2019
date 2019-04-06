@@ -10,6 +10,17 @@ public class WorldsTeleop  extends LinearOpMode {
 
     public HardwareWorldsRobot robot = new HardwareWorldsRobot();
 
+    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
+    static final double     WHEEL_DIAMETER_INCHES   = 4.0 ;     // For figuring circumference
+    static final double     COUNTS_PER_INCH         = COUNTS_PER_MOTOR_REV /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+
+    static final double     DRIVE_SPEED             = 0.8;
+    static final double     STRAFE_SPEED            = 0.4;
+    static final double     DETECT_SPEED            = 0.1;
+    static final double     PUSH_SPEED              = 0.2;
+    static final long       MOVE_DELAY              = 250;
+
     private final double DPAD_SPEED = 0.45;
 
     private final int INITIAL_POWER = 8;

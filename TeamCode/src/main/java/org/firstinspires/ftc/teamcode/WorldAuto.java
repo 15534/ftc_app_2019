@@ -104,16 +104,30 @@ public class WorldAuto extends LinearOpMode {
             }
             telemetry.update();
 
-//
-//            double bottom;
-//            while (opModeIsActive()) {
-//                bottom = bottom();
-//                telemetry.addData("bottom", bottom);
-//                robot.actuator.setPower(Math.max(bottom, 1));
-//            }
-//
-//            sleep(300);
-//            robot.actuator.setPower(0);
+
+            double bottom = 10;
+             robot.actuator.setPower(1);
+            while (opModeIsActive() && bottom > 1.86) {
+              bottom = bottom();
+             telemetry.addData("bottom", bottom);
+            }
+            sleep(100);
+            robot.actuator.setPower(0);
+                             sleep(100);
+                                        robot.actuator.setPower(0);
+
+                                        drive(0.6);
+                                        sleep(200);
+                                        drive(0);
+
+                                        strafe(0.4);
+                                        sleep(100);
+                                        strafe(0);
+
+                                        drive(-0.6);
+                                        sleep(200);
+                                        drive(0);
+
 
         }
     }
@@ -121,6 +135,19 @@ public class WorldAuto extends LinearOpMode {
     /**
      * Initialize the Vuforia localization engine.
      */
+    private void drive(double power){
+    robot.leftfront.setPower(power);
+    robot.rightfront.setPower(power);
+    robot.leftback.setPower(power);
+    robot.rightback.setPower(power);
+    }
+        private void strafe(double power) {
+            robot.leftfront.setPower(power);
+            robot.rightback.setPower(power);
+            robot.rightfront.setPower(power);
+            robot.leftback.setPower(power);
+        }
+
     private void initVuforia() {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
