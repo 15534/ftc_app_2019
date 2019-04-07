@@ -50,7 +50,7 @@ public class WorldsTeleop  extends LinearOpMode {
     @Override
     public void runOpMode(){
         robot.init(hardwareMap);
-        telemetry.addData("Say", "Hello Driver");
+        telemetry.addData(">", "Init Successful");
         telemetry.update();
         waitForStart();
         while (opModeIsActive()) {
