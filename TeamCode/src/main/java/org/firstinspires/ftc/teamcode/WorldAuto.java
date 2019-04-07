@@ -3,15 +3,22 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.util.ArrayList;
 import java.util.List;
 @Autonomous(name = "WorldAuto", group = "World Bot")
 public class WorldAuto extends LinearOpMode {
@@ -22,6 +29,15 @@ public class WorldAuto extends LinearOpMode {
     double front;
     double back;
     double bottom;
+
+
+    static final double     COUNTS_PER_MOTOR_REV    = 1440 ;    // eg: TETRIX Motor Encoder
+    static final double     WHEEL_DIAMETER_INCHES   = 6.0 ;     // For figuring circumference
+    static final double     COUNTS_PER_INCH         = COUNTS_PER_MOTOR_REV /
+            (WHEEL_DIAMETER_INCHES * 3.1415);
+
+    static final double     STRAFE_SPEED            = 0.5;
+
 
     /**
      * {@link #vuforia} is the variable we will use to store our instance of the Vuforia
@@ -57,17 +73,52 @@ public class WorldAuto extends LinearOpMode {
             tfod.activate();
         }
 
+
+        robot.imu.startAccelerationIntegration(new Position(), new Velocity(), 1000);
+
         /** Wait for the game to begin */
         telemetry.addData(">", "Init Successful");
         telemetry.update();
         waitForStart();
 
         if (opModeIsActive()) {
+//
+
+
+            /*
+
+            moveTank(STRAFE_SPEED, 8, 8, 10);
+
+            // extend intake
+            robot.intakeextension.setPower(-1);
+            sleep(2000);
+            robot.intakeextension.setPower(0);
+
+            // drop intake
+            robot.intakeliftleft.setPosition(1.0);
+            robot.intakeliftright.setPosition(0.0);
+
+            // release marker
+            robot.intake.setPower(0.8);
+            sleep(1000);
+            robot.intake.setPower(0);
+
+            // raise intake
+            robot.intakeliftleft.setPosition(0.0);
+            robot.intakeliftright.setPosition(1.0);
+
+            // retract intake
+            robot.intakeextension.setPower(1);
+            sleep(2000);
+            robot.intakeextension.setPower(0);
+
+            moveTank(STRAFE_SPEED, -8, -8, 10);
+
+            */
 
             robot.phone.setPosition(0);
             sleep(1000);
 
-            /** Activate Tensor Flow Object Detection. */
             int position = -1;
 
             runtime.reset();
@@ -105,29 +156,78 @@ public class WorldAuto extends LinearOpMode {
             telemetry.update();
 
             double bottom = 10;
-             robot.actuator.setPower(1);
+             robot.actuator.setPower(0.5);
             while (opModeIsActive() && bottom > 1.86) {
               bottom = bottom();
+              robot.actuator.setPower(Math.max(0.75, bottom));
              telemetry.addData("bottom", bottom);
+             telemetry.update();
             }
             sleep(100);
             robot.actuator.setPower(0);
 
-            moveTank(0.6, -4, -4, 3, false);
-            strafe(0.4, 2, 2, false);
-            moveTank(0.6, 4, 4, 3, false);
-            //90 dergee turn
-            moveTank(0.6, 10.5, -10.5, 5, false);
 
-            if(position == -1){//left
-                strafe(STRAFE_SPEED, -16, 10, false);
-                moveTank(0.6, 8, 8, 6, false);
-            }if(position == 0){//center
-                moveTank(0.6, 4, 4, 5, false);
-            }else{//right
-                strafe(STRAFE_SPEED, 15, 10, false);
-                moveTank(0.6, 8, 8, 6, false);
+            moveTank(0.6, -3, -3, 3);
+            sleep(100);
+            strafe(0.4, 2, 2);
+            sleep(100);
+            moveTank(0.6, 2, 2, 3);
+            sleep(100);
+
+            strafe(STRAFE_SPEED, 4, 5);
+            sleep(100);
+
+            if (position == -1) {
+                rotate(-60, 0.5);
+            } else if (position == 1) {
+                rotate(-130, 0.5);
+            } else {
+                rotate(-95, 0.5);
             }
+
+            // drop intake
+            robot.intakeliftleft.setPosition(1.0);
+            robot.intakeliftright.setPosition(1.0);
+            sleep(1000);
+            // spin in
+            robot.intake.setPower(-0.3);
+            sleep(1000);
+            // extend intake
+            robot.intakeextension.setPower(-1);
+            sleep(1000);
+            robot.intake.setPower(0);
+            robot.intakeextension.setPower(0);
+            sleep(1000);
+            // raise intake
+            robot.intakeliftleft.setPosition(0.3);
+            robot.intakeliftright.setPosition(0.3);
+            // retract intake
+            robot.intakeextension.setPower(1);
+            sleep(1000);
+            robot.intake.setPower(0);
+
+
+            if (position == -1) {
+                rotate(-30, 0.5);
+            } else if (position == 1) {
+                rotate(40, 0.5);
+            } else {
+                rotate(-5, 0.5);
+            }
+
+//
+//            //90 dergee turn
+//            moveTank(0.6, 10.5, -10.5, 5, false);
+//
+//            if(position == -1){//left
+//                strafe(STRAFE_SPEED, -16, 10, false);
+//                moveTank(0.6, 8, 8, 6, false);
+//            }if(position == 0){//center
+//                moveTank(0.6, 4, 4, 5, false);
+//            }else{//right
+//                strafe(STRAFE_SPEED, 15, 10, false);
+//                moveTank(0.6, 8, 8, 6, false);
+//            }
 
 
         }
@@ -189,9 +289,9 @@ public class WorldAuto extends LinearOpMode {
         return -2;
     }
 
-    public boolean strafe(double speed,
+    public void strafe(double speed,
                               double inches,
-                              double timeoutS, boolean withDetector) {
+                              double timeoutS) {
 
             int newFrontLeftTarget, newBackLeftTarget, newFrontRightTarget, newBackRightTarget;
 
@@ -199,28 +299,28 @@ public class WorldAuto extends LinearOpMode {
             if (opModeIsActive()) {
 
                 // Determine new target position, and pass to motor controller
-                newFrontLeftTarget = robot.leftFrontDrive.getCurrentPosition() - (int)(inches * COUNTS_PER_INCH);
-                newBackLeftTarget = robot.leftBackDrive.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
-                newFrontRightTarget = robot.rightFrontDrive.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
-                newBackRightTarget = robot.rightBackDrive.getCurrentPosition() - (int)(inches * COUNTS_PER_INCH);
+                newFrontLeftTarget = robot.leftfront.getCurrentPosition() - (int)(inches * COUNTS_PER_INCH);
+                newBackLeftTarget = robot.leftback.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
+                newFrontRightTarget = robot.rightfront.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
+                newBackRightTarget = robot.rightback.getCurrentPosition() - (int)(inches * COUNTS_PER_INCH);
 
-                robot.leftFrontDrive.setTargetPosition(newFrontLeftTarget);
-                robot.leftBackDrive.setTargetPosition(newBackLeftTarget);
-                robot.rightFrontDrive.setTargetPosition(newFrontRightTarget);
-                robot.rightBackDrive.setTargetPosition(newBackRightTarget);
+                robot.leftfront.setTargetPosition(newFrontLeftTarget);
+                robot.leftback.setTargetPosition(newBackLeftTarget);
+                robot.rightfront.setTargetPosition(newFrontRightTarget);
+                robot.rightback.setTargetPosition(newBackRightTarget);
 
                 // Turn On RUN_TO_POSITION
-                robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.rightfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.leftback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.rightback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                 // reset the timeout time and start motion.
                 runtime.reset();
-                robot.leftBackDrive.setPower(Math.abs(speed) * Math.signum(inches));
-                robot.rightBackDrive.setPower(Math.abs(speed) * Math.signum(inches));
-                robot.leftFrontDrive.setPower(Math.abs(speed) * Math.signum(inches));
-                robot.rightFrontDrive.setPower(Math.abs(speed) * Math.signum(inches));
+                robot.leftback.setPower(Math.abs(speed) * Math.signum(inches));
+                robot.rightback.setPower(Math.abs(speed) * Math.signum(inches));
+                robot.leftfront.setPower(Math.abs(speed) * Math.signum(inches));
+                robot.rightfront.setPower(Math.abs(speed) * Math.signum(inches));
 
                 // keep looping while we are still active, and there is time left, and both motors are running.
                 // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
@@ -230,44 +330,37 @@ public class WorldAuto extends LinearOpMode {
                 // onto the next step, use (isBusy() || isBusy()) in the loop test.
                 while (opModeIsActive() &&
                         (runtime.seconds() < timeoutS) &&
-                        (robot.rightBackDrive.isBusy() && robot.rightFrontDrive.isBusy()
-                                && robot.leftBackDrive.isBusy() && robot.leftFrontDrive.isBusy())
-                        && (!withDetector || !detector.getAligned())) {
+                        (robot.rightback.isBusy() && robot.rightfront.isBusy()
+                                && robot.leftback.isBusy() && robot.leftfront.isBusy())) {
 
                     // Display it for the driver.
                     telemetry.addData("Current",  "Running to %7d :%7d", newBackLeftTarget,  newBackRightTarget);
                     telemetry.addData("backRight",  "Running at bl: %7d, fl: %7d, br: %7d, fr: %7d",
-                            robot.leftBackDrive.getCurrentPosition(),
-                            robot.leftFrontDrive.getCurrentPosition(),
-                            robot.rightBackDrive.getCurrentPosition(),
-                            robot.rightFrontDrive.getCurrentPosition());
+                            robot.leftback.getCurrentPosition(),
+                            robot.leftfront.getCurrentPosition(),
+                            robot.rightback.getCurrentPosition(),
+                            robot.rightfront.getCurrentPosition());
 
                     telemetry.update();
                 }
 
                 // Stop all motion;
-                robot.rightFrontDrive.setPower(0);
-                robot.leftFrontDrive.setPower(0);
-                robot.rightBackDrive.setPower(0);
-                robot.leftBackDrive.setPower(0);
+                robot.rightfront.setPower(0);
+                robot.leftfront.setPower(0);
+                robot.rightback.setPower(0);
+                robot.leftback.setPower(0);
 
                 // Turn off RUN_TO_POSITION
-                robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-                sleep(MOVE_DELAY);
-
-                if (detector.getAligned()) return true;
-
+                robot.rightfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.rightback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
-            return false;
         }
 
         public void moveTank(double speed,
                                  double leftInches, double rightInches,
-                                 double timeoutS, boolean withDetector) {
+                                 double timeoutS) {
 
                 int newFrontLeftTarget, newBackLeftTarget, newFrontRightTarget, newBackRightTarget;
 
@@ -275,28 +368,28 @@ public class WorldAuto extends LinearOpMode {
                 if (opModeIsActive()) {
 
                     // Determine new target position, and pass to motor controller
-                    newFrontLeftTarget = robot.leftFrontDrive.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
-                    newBackLeftTarget = robot.leftBackDrive.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
-                    newFrontRightTarget = robot.rightFrontDrive.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
-                    newBackRightTarget = robot.rightBackDrive.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
+                    newFrontLeftTarget = robot.leftfront.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
+                    newBackLeftTarget = robot.leftback.getCurrentPosition() - (int)(leftInches * COUNTS_PER_INCH);
+                    newFrontRightTarget = robot.rightfront.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
+                    newBackRightTarget = robot.rightback.getCurrentPosition() - (int)(rightInches * COUNTS_PER_INCH);
 
-                    robot.leftFrontDrive.setTargetPosition(newFrontLeftTarget);
-                    robot.leftBackDrive.setTargetPosition(newBackLeftTarget);
-                    robot.rightFrontDrive.setTargetPosition(newFrontRightTarget);
-                    robot.rightBackDrive.setTargetPosition(newBackRightTarget);
+                    robot.leftfront.setTargetPosition(newFrontLeftTarget);
+                    robot.leftback.setTargetPosition(newBackLeftTarget);
+                    robot.rightfront.setTargetPosition(newFrontRightTarget);
+                    robot.rightback.setTargetPosition(newBackRightTarget);
 
                     // Turn On RUN_TO_POSITION
-                    robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.rightfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.leftfront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.leftback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.rightback.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
                     // reset the timeout time and start motion.
                     runtime.reset();
-                    robot.leftBackDrive.setPower(Math.abs(speed));
-                    robot.rightBackDrive.setPower(Math.abs(speed));
-                    robot.leftFrontDrive.setPower(Math.abs(speed));
-                    robot.rightFrontDrive.setPower(Math.abs(speed));
+                    robot.leftback.setPower(Math.abs(speed));
+                    robot.rightback.setPower(Math.abs(speed));
+                    robot.leftfront.setPower(Math.abs(speed));
+                    robot.rightfront.setPower(Math.abs(speed));
 
                     // keep looping while we are still active, and there is time left, and both motors are running.
                     // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
@@ -306,34 +399,88 @@ public class WorldAuto extends LinearOpMode {
                     // onto the next step, use (isBusy() || isBusy()) in the loop test.
                     while (opModeIsActive() &&
                             (runtime.seconds() < timeoutS) &&
-                            (robot.rightBackDrive.isBusy() && robot.rightFrontDrive.isBusy()
-                                    && robot.leftBackDrive.isBusy() && robot.leftFrontDrive.isBusy()) && (!withDetector || !detector.getAligned())) {
+                            (robot.rightback.isBusy() && robot.rightfront.isBusy()
+                                    && robot.leftback.isBusy() && robot.leftfront.isBusy())) {
 
                         // Display it for the driver.
                         telemetry.addData("Current",  "Running to %7d :%7d", newBackLeftTarget,  newBackRightTarget);
                         telemetry.addData("backRight",  "Running at bl: %7d, fl: %7d, br: %7d, fr: %7d",
-                                robot.leftBackDrive.getCurrentPosition(),
-                                robot.leftFrontDrive.getCurrentPosition(),
-                                robot.rightBackDrive.getCurrentPosition(),
-                                robot.rightFrontDrive.getCurrentPosition());
+                                robot.leftback.getCurrentPosition(),
+                                robot.leftfront.getCurrentPosition(),
+                                robot.rightback.getCurrentPosition(),
+                                robot.rightfront.getCurrentPosition());
 
                         telemetry.update();
                     }
 
                     // Stop all motion;
-                    robot.rightFrontDrive.setPower(0);
-                    robot.leftFrontDrive.setPower(0);
-                    robot.rightBackDrive.setPower(0);
-                    robot.leftBackDrive.setPower(0);
+                    robot.rightfront.setPower(0);
+                    robot.leftfront.setPower(0);
+                    robot.rightback.setPower(0);
+                    robot.leftback.setPower(0);
 
                     // Turn off RUN_TO_POSITION
-                    robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    robot.rightBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    robot.leftBackDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-                    // Delay after movement
-                    sleep(MOVE_DELAY);
+                    robot.rightfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.rightback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    robot.leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 }
             }
+
+    public void rotate(double degrees, double maxSpeed) {
+        double K_P = 0.0502;
+        double K_I = 0;
+        double K_D = 0.0014;
+
+        double target = degrees - heading();
+        double error = 100;
+        double lastError = 0;
+        double integral = 0;
+        double derivative = 0;
+        ArrayList<Double> values = new ArrayList<Double>();
+
+        double leftPower = 1, rightPower;
+        while (opModeIsActive() && (values.size() <= 10 || Math.abs(values.get(values.size()-1-10) -
+                values.get(values.size()-1)) > 0.01 )) {
+            error = computeError(heading(), target);
+
+            values.add(error);
+
+            integral += error;
+            derivative = error - lastError;
+
+            leftPower = Math.max(Math.min(K_P * error + K_I * integral + K_D * derivative, maxSpeed), -maxSpeed);
+            rightPower = -leftPower;
+            robot.leftfront.setPower(leftPower);
+            robot.leftback.setPower(leftPower);
+            robot.rightfront.setPower(rightPower);
+            robot.rightback.setPower(rightPower);
+            telemetry.addData("error", error);
+            telemetry.addData("proportional", K_P * error);
+            telemetry.addData("integral", K_I * integral);
+            telemetry.addData("derivative", K_D * derivative);
+            telemetry.addData("leftPower", leftPower);
+            telemetry.addData("rightPower", rightPower);
+            telemetry.update();
+            lastError = error;
+        }
+        robot.leftback.setPower(0);
+        robot.leftfront.setPower(0);
+        robot.rightback.setPower(0);
+        robot.rightfront.setPower(0);
+
+    }
+
+    private double heading() {
+        return -robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+    }
+
+    private double computeError(double heading, double target) {
+        double error = target + heading;
+        if (error > 180) {
+            error = error - 360;
+        }
+        return error;
+    }
+
 }
