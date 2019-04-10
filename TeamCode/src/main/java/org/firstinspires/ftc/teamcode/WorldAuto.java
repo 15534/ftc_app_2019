@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.MotionDetection;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
@@ -37,6 +38,8 @@ public class WorldAuto extends LinearOpMode {
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
     static final double     STRAFE_SPEED            = 0.5;
+    static final double     MOVE_SPEED              = 0.8;
+    static final double     TURN_SPEED              = 0.3;
 
 
     /**
@@ -116,7 +119,11 @@ public class WorldAuto extends LinearOpMode {
 
             */
 
+            robot.dumperextension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             robot.phone.setPosition(0);
+            robot.intakeliftleft.setPosition(1.0);
+            robot.intakeliftright.setPosition(1.0);
+            robot.dumper.setPosition(1);
             sleep(1000);
 
             int position = -1;
@@ -144,51 +151,51 @@ public class WorldAuto extends LinearOpMode {
                 tfod.shutdown();
             }
 
-            if (position == -1) {
-                telemetry.addData("mineral", "left");
-            }
-            else if (position == 0) {
-                telemetry.addData("mineral", "center");
-            }
-            else {
-                telemetry.addData("mineral", "right");
-            }
-            telemetry.update();
-
             double bottom = 10;
              robot.actuator.setPower(0.5);
-            while (opModeIsActive() && bottom > 1.86) {
+             runtime.reset();
+            while (opModeIsActive() && bottom > -0.5 && runtime.seconds() < 5) {
               bottom = bottom();
-              robot.actuator.setPower(Math.max(0.75, bottom));
+              robot.actuator.setPower(0.75);
+
+                if (position == -1) {
+                    telemetry.addData("mineral", "left");
+                }
+                else if (position == 0) {
+                    telemetry.addData("mineral", "center");
+                }
+                else {
+                    telemetry.addData("mineral", "right");
+                }
              telemetry.addData("bottom", bottom);
              telemetry.update();
             }
             sleep(100);
             robot.actuator.setPower(0);
 
-
             moveTank(0.6, -3, -3, 3);
             sleep(100);
+
             strafe(0.4, 2, 2);
             sleep(100);
             moveTank(0.6, 2, 2, 3);
             sleep(100);
 
-            strafe(STRAFE_SPEED, 4, 5);
+            strafe(STRAFE_SPEED, 2, 5);
             sleep(100);
 
             if (position == -1) {
-                rotate(-60, 0.5);
+                rotate(60, 0.5);
             } else if (position == 1) {
-                rotate(-130, 0.5);
+                rotate(125, 0.5);
             } else {
-                rotate(-95, 0.5);
+                rotate(95, 0.5);
             }
 
             // drop intake
-            robot.intakeliftleft.setPosition(1.0);
-            robot.intakeliftright.setPosition(1.0);
-            sleep(1000);
+//            robot.intakeliftleft.setPosition(1.0);
+//            robot.intakeliftright.setPosition(1.0);
+//            sleep(1000);
             // spin in
             robot.intake.setPower(-0.3);
             sleep(1000);
@@ -204,16 +211,31 @@ public class WorldAuto extends LinearOpMode {
             // retract intake
             robot.intakeextension.setPower(1);
             sleep(1000);
+            robot.intakeextension.setPower(0);
             robot.intake.setPower(0);
 
-
             if (position == -1) {
-                rotate(-30, 0.5);
+                rotate(30, 0.5);
             } else if (position == 1) {
-                rotate(40, 0.5);
+                rotate(-35, 0.5);
             } else {
                 rotate(-5, 0.5);
             }
+
+            moveTank(0.5, 6, 6, 5);
+
+            sleep(200);
+
+            rotate(90, 0.5);
+
+            moveTank(MOVE_SPEED, -36, -36, 10);
+            rotate(-45, TURN_SPEED);
+            moveTank(MOVE_SPEED, -24, -24, 10);
+            robot.dumperextension.setPower(1);
+            sleep(500);
+            robot.dumperextension.setPower(0);
+            moveTank(MOVE_SPEED, 48, 48, 10);
+
 
 //
 //            //90 dergee turn
@@ -270,8 +292,16 @@ public class WorldAuto extends LinearOpMode {
     }
 
     private double bottom() {
-        double bottom = robot.bottomsensor.getDistance(DistanceUnit.INCH);
+        double bottom = robot.bottomsensor.getDistance(DistanceUnit.INCH) - 2;
         return bottom;
+    }
+
+    private double rightFront() {
+        return robot.rightfrontsensor.getDistance(DistanceUnit.INCH);
+    }
+
+    private double rightBack() {
+        return robot.rightbacksensor.getDistance(DistanceUnit.INCH);
     }
 
     private int goldMineralX() {
@@ -355,6 +385,8 @@ public class WorldAuto extends LinearOpMode {
                 robot.leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.rightback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                sleep(100);
             }
         }
 
@@ -424,15 +456,19 @@ public class WorldAuto extends LinearOpMode {
                     robot.leftfront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     robot.rightback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                     robot.leftback.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+                    sleep(100);
                 }
+
             }
 
     public void rotate(double degrees, double maxSpeed) {
-        double K_P = 0.0502;
+        double K_P = -0.0502;
         double K_I = 0;
-        double K_D = 0.0014;
+//        double K_D = 0.0014;
+        double K_D = 0;
 
-        double target = degrees - heading();
+        double target = degrees + heading();
         double error = 100;
         double lastError = 0;
         double integral = 0;
@@ -440,8 +476,12 @@ public class WorldAuto extends LinearOpMode {
         ArrayList<Double> values = new ArrayList<Double>();
 
         double leftPower = 1, rightPower;
-        while (opModeIsActive() && (values.size() <= 10 || Math.abs(values.get(values.size()-1-10) -
-                values.get(values.size()-1)) > 0.01 )) {
+        double predPower = 0;
+        while (opModeIsActive()
+                && (values.size() <= 10 || Math.abs(values.get(values.size()-1-10) -
+                values.get(values.size()-1)) > 0.01
+        )
+            ) {
             error = computeError(heading(), target);
 
             values.add(error);
@@ -449,8 +489,14 @@ public class WorldAuto extends LinearOpMode {
             integral += error;
             derivative = error - lastError;
 
-            leftPower = Math.max(Math.min(K_P * error + K_I * integral + K_D * derivative, maxSpeed), -maxSpeed);
+            predPower = K_P * error + K_I * integral + K_D * derivative;
+            if (Math.abs(predPower) > Math.abs(maxSpeed)) {
+                predPower = predPower / Math.abs(predPower) * maxSpeed;
+            }
+
+            leftPower = predPower;
             rightPower = -leftPower;
+
             robot.leftfront.setPower(leftPower);
             robot.leftback.setPower(leftPower);
             robot.rightfront.setPower(rightPower);
@@ -469,6 +515,8 @@ public class WorldAuto extends LinearOpMode {
         robot.rightback.setPower(0);
         robot.rightfront.setPower(0);
 
+        sleep(100);
+
     }
 
     private double heading() {
@@ -476,7 +524,7 @@ public class WorldAuto extends LinearOpMode {
     }
 
     private double computeError(double heading, double target) {
-        double error = target + heading;
+        double error = target - heading;
         if (error > 180) {
             error = error - 360;
         }
