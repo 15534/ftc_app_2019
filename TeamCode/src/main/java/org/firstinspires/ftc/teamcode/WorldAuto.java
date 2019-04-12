@@ -85,66 +85,37 @@ public class WorldAuto extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-//
-
-
-            /*
-
-            moveTank(STRAFE_SPEED, 8, 8, 10);
-
-            // extend intake
-            robot.intakeextension.setPower(-1);
-            sleep(2000);
-            robot.intakeextension.setPower(0);
-
-            // drop intake
-            robot.intakeliftleft.setPosition(1.0);
-            robot.intakeliftright.setPosition(0.0);
-
-            // release marker
-            robot.intake.setPower(0.8);
-            sleep(1000);
-            robot.intake.setPower(0);
-
-            // raise intake
-            robot.intakeliftleft.setPosition(0.0);
-            robot.intakeliftright.setPosition(1.0);
-
-            // retract intake
-            robot.intakeextension.setPower(1);
-            sleep(2000);
-            robot.intakeextension.setPower(0);
-
-            moveTank(STRAFE_SPEED, -8, -8, 10);
-
-            */
-
             robot.dumperextension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             robot.phone.setPosition(0);
             robot.intakeliftleft.setPosition(1.0);
             robot.intakeliftright.setPosition(1.0);
             robot.dumper.setPosition(1);
-            sleep(1000);
 
+            sleep(500);
             int position = -1;
+            int goldMineralY = -1;
 
             runtime.reset();
 
             // detect mineral position
-
-            while (opModeIsActive() && runtime.seconds() < 2) {
+            while (opModeIsActive() && runtime.seconds() < 1) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                    int goldMineralX = -1;
                     if (updatedRecognitions != null) {
-                        int goldMineralX = -1;
                         for (Recognition recognition : updatedRecognitions) {
-                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL)) {
-                                goldMineralX = (int) recognition.getLeft();
+                            if (recognition.getLabel().equals(LABEL_GOLD_MINERAL) && recognition.getBottom() > 200) {
+                                    goldMineralX = (int) recognition.getLeft();
+                                    goldMineralY = (int) recognition.getBottom();
                             }
                         }
 
                         if (goldMineralX > 830 && goldMineralX < 1300) position = 1;
                         if (goldMineralX < 830 && goldMineralX > 300) position = 0;
                     }
+
+                    telemetry.addData("top", goldMineralY);
+                    telemetry.addData("position", position);
+                    telemetry.update();
             }
 
             if (tfod != null) {
@@ -152,11 +123,10 @@ public class WorldAuto extends LinearOpMode {
             }
 
             double bottom = 10;
-             robot.actuator.setPower(0.5);
              runtime.reset();
-            while (opModeIsActive() && bottom > -0.5 && runtime.seconds() < 5) {
+            while (opModeIsActive() && bottom > 0 && runtime.seconds() < 3) {
               bottom = bottom();
-              robot.actuator.setPower(0.75);
+              robot.actuator.setPower(1);
 
                 if (position == -1) {
                     telemetry.addData("mineral", "left");
@@ -167,6 +137,7 @@ public class WorldAuto extends LinearOpMode {
                 else {
                     telemetry.addData("mineral", "right");
                 }
+
              telemetry.addData("bottom", bottom);
              telemetry.update();
             }
@@ -175,14 +146,13 @@ public class WorldAuto extends LinearOpMode {
 
             moveTank(0.6, -3, -3, 3);
             sleep(100);
-
-            strafe(0.4, 2, 2);
+            strafe(0.6, 4, 2);
             sleep(100);
             moveTank(0.6, 2, 2, 3);
             sleep(100);
-
-            strafe(STRAFE_SPEED, 2, 5);
-            sleep(100);
+//
+//            strafe(STRAFE_SPEED, 2, 5);
+//            sleep(100);
 
             if (position == -1) {
                 rotate(60, 0.5);
@@ -198,13 +168,12 @@ public class WorldAuto extends LinearOpMode {
 //            sleep(1000);
             // spin in
             robot.intake.setPower(-0.3);
-            sleep(1000);
             // extend intake
             robot.intakeextension.setPower(-1);
             sleep(1000);
             robot.intake.setPower(0);
             robot.intakeextension.setPower(0);
-            sleep(1000);
+            sleep(200);
             // raise intake
             robot.intakeliftleft.setPosition(0.3);
             robot.intakeliftright.setPosition(0.3);
@@ -229,7 +198,7 @@ public class WorldAuto extends LinearOpMode {
             rotate(90, 0.5);
 
             moveTank(MOVE_SPEED, -36, -36, 10);
-            rotate(-45, TURN_SPEED);
+            encoderRotate(-45, 1);
             moveTank(MOVE_SPEED, -24, -24, 10);
             robot.dumperextension.setPower(1);
             sleep(500);
@@ -462,6 +431,11 @@ public class WorldAuto extends LinearOpMode {
 
             }
 
+    public void encoderRotate(double degrees, double speed) {
+        double leftInches = degrees / 360 * 2 * Math.PI * 9.3;
+        moveTank(speed, leftInches, -leftInches, 5);
+    }
+
     public void rotate(double degrees, double maxSpeed) {
         double K_P = -0.0502;
         double K_I = 0;
@@ -469,6 +443,8 @@ public class WorldAuto extends LinearOpMode {
         double K_D = 0;
 
         double target = degrees + heading();
+        encoderRotate(degrees, 1);
+
         double error = 100;
         double lastError = 0;
         double integral = 0;
@@ -478,7 +454,7 @@ public class WorldAuto extends LinearOpMode {
         double leftPower = 1, rightPower;
         double predPower = 0;
         while (opModeIsActive()
-                && (values.size() <= 10 || Math.abs(values.get(values.size()-1-10) -
+                && (values.size() <= 5 || Math.abs(values.get(values.size()-1-5) -
                 values.get(values.size()-1)) > 0.01
         )
             ) {
