@@ -87,6 +87,7 @@ public class HardwareWorldsRobot {
         intakeliftleft.setDirection(Servo.Direction.FORWARD);
         intakeliftright.setDirection(Servo.Direction.REVERSE);
         dumper.setDirection(Servo.Direction.REVERSE);
+        dumper.scaleRange(0, 0.6);
 
         // initialize distance sensors
         rightfrontsensor = hwMap.get(Rev2mDistanceSensor.class, "rightFront");

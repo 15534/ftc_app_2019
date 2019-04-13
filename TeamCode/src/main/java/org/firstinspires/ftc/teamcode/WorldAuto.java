@@ -18,7 +18,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.Came
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.internal.ftdi.eeprom.FT_EEPROM_232H;
 
+import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.List;
 @Autonomous(name = "WorldAuto", group = "World Bot")
@@ -83,6 +85,23 @@ public class WorldAuto extends LinearOpMode {
         telemetry.addData(">", "Init Successful");
         telemetry.update();
         waitForStart();
+
+//        dump routine
+//        robot.dumper.setPosition(1);
+//        sleep(500);
+//        // bring down while getting mineral
+//        robot.dumperextension.setPower(-0.5);
+//        sleep(400);
+//        robot.dumperextension.setPower(0);
+//        robot.intake.setPower(-0.3);
+//        sleep(1000);
+//        robot.intake.setPower(0);
+//        robot.dumperextension.setPower(1);
+//        sleep(1000);
+//        robot.dumperextension.setPower(0);
+//
+//
+//        robot.dumper.setPosition(0);
 
         if (opModeIsActive()) {
             robot.dumperextension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -170,7 +189,10 @@ public class WorldAuto extends LinearOpMode {
             robot.intake.setPower(-0.3);
             // extend intake
             robot.intakeextension.setPower(-1);
-            sleep(1000);
+            robot.dumperextension.setPower(-0.5);
+            sleep(400);
+            robot.dumperextension.setPower(0);
+            sleep(600);
             robot.intake.setPower(0);
             robot.intakeextension.setPower(0);
             sleep(200);
@@ -179,7 +201,9 @@ public class WorldAuto extends LinearOpMode {
             robot.intakeliftright.setPosition(0.3);
             // retract intake
             robot.intakeextension.setPower(1);
-            sleep(1000);
+            sleep(500);
+            robot.intake.setPower(-0.3);
+            sleep(500);
             robot.intakeextension.setPower(0);
             robot.intake.setPower(0);
 
@@ -196,15 +220,28 @@ public class WorldAuto extends LinearOpMode {
             sleep(200);
 
             rotate(90, 0.5);
-
-            moveTank(MOVE_SPEED, -36, -36, 10);
-            encoderRotate(-45, 1);
+            moveTank(MOVE_SPEED, -35, -35, 10);
+            encoderRotate(-48, 1);
             moveTank(MOVE_SPEED, -24, -24, 10);
             robot.dumperextension.setPower(1);
             sleep(500);
             robot.dumperextension.setPower(0);
-            moveTank(MOVE_SPEED, 48, 48, 10);
+            moveTank(MOVE_SPEED, 30, 30, 10);
+            strafe(STRAFE_SPEED, 6, 10);
+            encoderRotate(-90, MOVE_SPEED);
+            moveTank(MOVE_SPEED, -3, -3, 5);
+            robot.dumperextension.setPower(1);
+            sleep(1000);
+            robot.dumperextension.setPower(0);
+            robot.dumper.setPosition(0);
+            sleep(500);
 
+            LowerDumperExtension lowerDumperExtension = new LowerDumperExtension();
+            lowerDumperExtension.start();
+            encoderRotate(70, 1);
+            robot.intakeextension.setPower(-1);
+            sleep(1000);
+            robot.intakeextension.setPower(0);
 
 //
 //            //90 dergee turn
@@ -505,6 +542,30 @@ public class WorldAuto extends LinearOpMode {
             error = error - 360;
         }
         return error;
+    }
+
+    class LowerDumperExtension implements Runnable {
+        private Thread t;
+        private String threadName;
+
+        LowerDumperExtension() {
+            threadName = "a";
+            System.out.println("Creating " +  threadName );
+        }
+
+        public void run() {
+            System.out.println("Running " +  threadName );
+            robot.dumperextension.setPower(-0.5);
+            sleep(1000);
+            robot.dumperextension.setPower(0);
+        }
+
+        public void start() {
+            if (t == null) {
+                t = new Thread (this, threadName);
+                t.start ();
+            }
+        }
     }
 
 }
