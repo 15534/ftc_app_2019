@@ -39,9 +39,9 @@ public class WorldAuto extends LinearOpMode {
     static final double     COUNTS_PER_INCH         = COUNTS_PER_MOTOR_REV /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
-    static final double     STRAFE_SPEED            = 0.5;
-    static final double     MOVE_SPEED              = 0.8;
-    static final double     TURN_SPEED              = 0.3;
+    static final double     STRAFE_SPEED            = 0.9;
+    static final double     MOVE_SPEED              = 0.9;
+    static final double     TURN_SPEED              = 0.6;
 
 
     /**
@@ -164,12 +164,9 @@ public class WorldAuto extends LinearOpMode {
             sleep(300);
             robot.actuator.setPower(0);
 
-            moveTank(0.6, -3, -3, 3);
-            sleep(100);
-            strafe(0.6, 4, 2);
-            sleep(100);
-            moveTank(0.6, 2, 2, 3);
-            sleep(100);
+            moveTank(MOVE_SPEED, -3, -3, 3);
+            strafe(MOVE_SPEED, 4, 2);
+            moveTank(MOVE_SPEED, 2, 2, 3);
 //
 //            strafe(STRAFE_SPEED, 2, 5);
 //            sleep(100);
@@ -197,7 +194,7 @@ public class WorldAuto extends LinearOpMode {
             sleep(200);
             robot.intake.setPower(0);
             robot.intakeextension.setPower(0);
-            sleep(200);
+//            sleep(200);
             // raise intake
             robot.intakeliftleft.setPosition(0.3);
             robot.intakeliftright.setPosition(0.3);
@@ -218,7 +215,7 @@ public class WorldAuto extends LinearOpMode {
 
             moveTank(0.5, 6, 6, 5);
 
-            sleep(200);
+//            sleep(200);
 
             rotate(90, 0.5);
             moveTank(MOVE_SPEED, -36, -36, 10);
@@ -235,12 +232,11 @@ public class WorldAuto extends LinearOpMode {
             robot.dumperextension.setPower(0);
             moveTank(MOVE_SPEED, 30, 30, 10);
             strafe(STRAFE_SPEED, 7, 10);
+            ExtendDumper extendDumper = new ExtendDumper();
+            extendDumper.start();
             encoderRotate(-80, MOVE_SPEED);
             sleep(100);
-            moveTank(MOVE_SPEED, -3, -3, 5);
-            robot.dumperextension.setPower(1);
-            sleep(1000);
-            robot.dumperextension.setPower(0);
+            moveTank(MOVE_SPEED, -6, -6, 5);
             robot.dumper.setPosition(0);
             sleep(1200);
 
@@ -519,7 +515,7 @@ public class WorldAuto extends LinearOpMode {
         double predPower = 0;
         while (opModeIsActive()
                 && ((values.size() <= 5 || Math.abs(values.get(values.size()-1-5) -
-                values.get(values.size()-1)) > 0.01) && (Math.abs(error) > 0.06))
+                values.get(values.size()-1)) > 0.01) && (Math.abs(error) > 0.1))
             ) {
             error = computeError(heading(), target);
 
@@ -645,5 +641,30 @@ public class WorldAuto extends LinearOpMode {
             }
         }
     }
+
+    class ExtendDumper implements Runnable {
+        private Thread t;
+        private String threadName;
+
+        ExtendDumper() {
+            threadName = "a";
+            System.out.println("Creating " +  threadName );
+        }
+
+        public void run() {
+            robot.dumperextension.setPower(1);
+            sleep(1000);
+            robot.dumperextension.setPower(0);
+        }
+
+        public void start() {
+            if (t == null) {
+                t = new Thread (this, threadName);
+                t.start ();
+            }
+        }
+    }
+
+
 
 }
