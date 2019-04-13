@@ -223,10 +223,13 @@ public class WorldAuto extends LinearOpMode {
             rotate(90, 0.5);
             moveTank(MOVE_SPEED, -36, -36, 10);
             encoderRotate(-48, TURN_SPEED);
-            strafeTime(-0.5, 1000);
+            strafeTime(-0.5, 500);
             strafe(STRAFE_SPEED, 2, 5);
-            sleep(100);
             moveTank(MOVE_SPEED, -24, -24, 10);
+            double distance = robot.backsensor.getDistance(DistanceUnit.INCH);
+            telemetry.addData("distance", distance);
+            telemetry.update();
+            moveTank(MOVE_SPEED, -(distance - 21), -(distance-21), 5);
             robot.dumperextension.setPower(1);
             sleep(500);
             robot.dumperextension.setPower(0);
@@ -244,8 +247,11 @@ public class WorldAuto extends LinearOpMode {
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension();
             lowerDumperExtension.start();
             encoderRotate(70, 1);
+
+            MoveRobotForward moveRobotForward = new MoveRobotForward();
+            moveRobotForward.start();
             robot.intakeextension.setPower(-1);
-            sleep(1000);
+            sleep(500);
             robot.intakeextension.setPower(0);
 
             // drop intake
@@ -599,14 +605,37 @@ public class WorldAuto extends LinearOpMode {
 
         public void run() {
             robot.intakeextension.setPower(1);
-            robot.intake.setPower(-0.3);
             sleep(200);
             robot.intakeextension.setPower(0);
-            sleep(800);
             robot.intake.setPower(0);
             robot.intakeextension.setPower(0.5);
             sleep(1000);
             robot.intakeextension.setPower(0);
+            robot.intake.setPower(-0.3);
+            sleep(1000);
+            robot.intake.setPower(0);
+            robot.intakeextension.setPower(0);
+        }
+
+        public void start() {
+            if (t == null) {
+                t = new Thread (this, threadName);
+                t.start ();
+            }
+        }
+    }
+
+    class MoveRobotForward implements Runnable {
+        private Thread t;
+        private String threadName;
+
+        MoveRobotForward() {
+            threadName = "a";
+            System.out.println("Creating " +  threadName );
+        }
+
+        public void run() {
+            moveTank(MOVE_SPEED, 6, 6, 5);
         }
 
         public void start() {
