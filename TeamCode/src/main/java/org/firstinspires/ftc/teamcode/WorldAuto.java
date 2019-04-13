@@ -105,11 +105,12 @@ public class WorldAuto extends LinearOpMode {
 
         if (opModeIsActive()) {
             robot.dumperextension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.phone.setPosition(0);
             robot.intakeliftleft.setPosition(1.0);
             robot.intakeliftright.setPosition(1.0);
+            sleep(200);
             robot.dumper.setPosition(1);
-
+            sleep(200);
+            robot.phone.setPosition(0);
             sleep(500);
             int position = -1;
             int goldMineralY = -1;
@@ -160,7 +161,7 @@ public class WorldAuto extends LinearOpMode {
              telemetry.addData("bottom", bottom);
              telemetry.update();
             }
-            sleep(100);
+            sleep(300);
             robot.actuator.setPower(0);
 
             moveTank(0.6, -3, -3, 3);
@@ -176,9 +177,9 @@ public class WorldAuto extends LinearOpMode {
             if (position == -1) {
                 rotate(60, 0.5);
             } else if (position == 1) {
-                rotate(125, 0.5);
+                rotate(120, 0.5);
             } else {
-                rotate(95, 0.5);
+                rotate(90, 0.5);
             }
 
             // drop intake
@@ -189,10 +190,11 @@ public class WorldAuto extends LinearOpMode {
             robot.intake.setPower(-0.3);
             // extend intake
             robot.intakeextension.setPower(-1);
+            sleep(400);
             robot.dumperextension.setPower(-0.5);
             sleep(400);
             robot.dumperextension.setPower(0);
-            sleep(600);
+            sleep(200);
             robot.intake.setPower(0);
             robot.intakeextension.setPower(0);
             sleep(200);
@@ -202,17 +204,16 @@ public class WorldAuto extends LinearOpMode {
             // retract intake
             robot.intakeextension.setPower(1);
             sleep(500);
-            robot.intake.setPower(-0.3);
-            sleep(500);
-            robot.intakeextension.setPower(0);
-            robot.intake.setPower(0);
+
+            IntakeMineralExtension intakeMineralExtension = new IntakeMineralExtension();
+            intakeMineralExtension.start();
 
             if (position == -1) {
                 rotate(30, 0.5);
             } else if (position == 1) {
-                rotate(-35, 0.5);
+                rotate(-30, 0.5);
             } else {
-                rotate(-5, 0.5);
+//                rotate(-10, 0.5);
             }
 
             moveTank(0.5, 6, 6, 5);
@@ -220,21 +221,25 @@ public class WorldAuto extends LinearOpMode {
             sleep(200);
 
             rotate(90, 0.5);
-            moveTank(MOVE_SPEED, -35, -35, 10);
-            encoderRotate(-48, 1);
+            moveTank(MOVE_SPEED, -36, -36, 10);
+            encoderRotate(-48, TURN_SPEED);
+            strafeTime(-0.5, 1000);
+            strafe(STRAFE_SPEED, 2, 5);
+            sleep(100);
             moveTank(MOVE_SPEED, -24, -24, 10);
             robot.dumperextension.setPower(1);
             sleep(500);
             robot.dumperextension.setPower(0);
             moveTank(MOVE_SPEED, 30, 30, 10);
-            strafe(STRAFE_SPEED, 6, 10);
-            encoderRotate(-90, MOVE_SPEED);
+            strafe(STRAFE_SPEED, 7, 10);
+            encoderRotate(-80, MOVE_SPEED);
+            sleep(100);
             moveTank(MOVE_SPEED, -3, -3, 5);
             robot.dumperextension.setPower(1);
             sleep(1000);
             robot.dumperextension.setPower(0);
             robot.dumper.setPosition(0);
-            sleep(500);
+            sleep(1200);
 
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension();
             lowerDumperExtension.start();
@@ -242,6 +247,10 @@ public class WorldAuto extends LinearOpMode {
             robot.intakeextension.setPower(-1);
             sleep(1000);
             robot.intakeextension.setPower(0);
+
+            // drop intake
+            robot.intakeliftleft.setPosition(1.0);
+            robot.intakeliftright.setPosition(1.0);
 
 //
 //            //90 dergee turn
@@ -323,6 +332,18 @@ public class WorldAuto extends LinearOpMode {
             return goldMineralX;
         }
         return -2;
+    }
+
+    public void strafeTime(double speed, long timeoutMS) {
+        robot.leftback.setPower(speed);
+        robot.rightfront.setPower(speed);
+        robot.rightback.setPower(-speed);
+        robot.leftfront.setPower(-speed);
+        sleep(timeoutMS);
+        robot.leftfront.setPower(0);
+        robot.leftback.setPower(0);
+        robot.rightback.setPower(0);
+        robot.rightfront.setPower(0);
     }
 
     public void strafe(double speed,
@@ -491,9 +512,8 @@ public class WorldAuto extends LinearOpMode {
         double leftPower = 1, rightPower;
         double predPower = 0;
         while (opModeIsActive()
-                && (values.size() <= 5 || Math.abs(values.get(values.size()-1-5) -
-                values.get(values.size()-1)) > 0.01
-        )
+                && ((values.size() <= 5 || Math.abs(values.get(values.size()-1-5) -
+                values.get(values.size()-1)) > 0.01) && (Math.abs(error) > 0.06))
             ) {
             error = computeError(heading(), target);
 
@@ -558,6 +578,35 @@ public class WorldAuto extends LinearOpMode {
             robot.dumperextension.setPower(-0.5);
             sleep(1000);
             robot.dumperextension.setPower(0);
+        }
+
+        public void start() {
+            if (t == null) {
+                t = new Thread (this, threadName);
+                t.start ();
+            }
+        }
+    }
+
+    class IntakeMineralExtension implements Runnable {
+        private Thread t;
+        private String threadName;
+
+        IntakeMineralExtension() {
+            threadName = "a";
+            System.out.println("Creating " +  threadName );
+        }
+
+        public void run() {
+            robot.intakeextension.setPower(1);
+            robot.intake.setPower(-0.3);
+            sleep(200);
+            robot.intakeextension.setPower(0);
+            sleep(800);
+            robot.intake.setPower(0);
+            robot.intakeextension.setPower(0.5);
+            sleep(1000);
+            robot.intakeextension.setPower(0);
         }
 
         public void start() {

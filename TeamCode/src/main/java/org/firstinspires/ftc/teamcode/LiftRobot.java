@@ -32,12 +32,10 @@ public class LiftRobot extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        if (opModeIsActive()) {
-
+        while (opModeIsActive()) {
             robot.actuator.setPower(-1);
-            sleep(4000);
-            robot.actuator.setPower(0);
         }
+        robot.actuator.setPower(0);
     }
 
 }
