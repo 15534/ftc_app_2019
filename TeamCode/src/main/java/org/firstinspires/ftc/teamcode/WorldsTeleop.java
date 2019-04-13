@@ -29,7 +29,7 @@ public class WorldsTeleop  extends LinearOpMode {
     private final double INTAKE_POWER_ADJUST = 0.4;
 
     private double leftBackPower = 0, rightBackPower = 0, leftFrontPower = 0, rightFrontPower = 0;
-    private double dumperPower = 0, dumperExtensionPower = 0;
+    private double dumperExtensionPower = 0;
     private double intakeExtensionPower = 0;
     private double intake;
     double intakelift;
@@ -105,7 +105,11 @@ public class WorldsTeleop  extends LinearOpMode {
                     rotate(-DPAD_SPEED);
                 }
 
-                dumperPower = gamepad1.left_stick_y;
+                if (gamepad1.left_stick_y > 0.2) {
+                    robot.dumper.setPosition(1);
+                } else if (gamepad1.left_stick_y < -0.2) {
+                    robot.dumper.setPosition(0);
+                }
 
                 dumperExtensionPower = -1 * gamepad1.right_stick_y;
 
@@ -174,7 +178,6 @@ public class WorldsTeleop  extends LinearOpMode {
         telemetry.addData("Gamepad2", gamepad2.toString());
         telemetry.addData("Game Mode", modeName(gameMode));
         telemetry.addData("power adjust", String.format(Locale.ENGLISH, "%.2f", (double) power / 10));
-        telemetry.addData("dumperPower", String.format(Locale.ENGLISH, "%.2f", dumperPower));
         telemetry.addData("dumperExtensionPower", String.format(Locale.ENGLISH, "%.2f", dumperExtensionPower));
         telemetry.addData("leftBackPower", String.format(Locale.ENGLISH, "%.2f", leftBackPower));
         telemetry.addData("rightBackPower", String.format(Locale.ENGLISH, "%.2f", rightBackPower));
@@ -207,7 +210,6 @@ public class WorldsTeleop  extends LinearOpMode {
 
         robot.intakeliftright.setPosition(-intakelift * 0.02 + robot.intakeliftright.getPosition());
         robot.intakeliftleft.setPosition(-intakelift * 0.02 + robot.intakeliftleft.getPosition());
-        robot.dumper.setPosition(dumperPower * 0.02 + robot.dumper.getPosition());
     }
 
     private GameMode nextMode(GameMode m) {
