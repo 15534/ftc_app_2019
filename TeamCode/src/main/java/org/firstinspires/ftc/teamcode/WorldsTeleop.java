@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import java.util.Locale;
 
@@ -32,7 +33,7 @@ public class WorldsTeleop  extends LinearOpMode {
     private double dumperExtensionPower = 0;
     private double intakeExtensionPower = 0;
     private double intake;
-    double intakelift;
+//    double intakelift;
 
     enum GameMode {
         MODE_1,
@@ -50,11 +51,11 @@ public class WorldsTeleop  extends LinearOpMode {
     @Override
     public void runOpMode(){
         robot.init(hardwareMap);
+        robot.intakeextension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         telemetry.addData(">", "Init Successful");
         telemetry.update();
         waitForStart();
         while (opModeIsActive()) {
-            intakelift = gamepad2.left_stick_y;
             if (gamepad1.start && canChangeGuide) {
                 gameMode = nextMode(gameMode);
                 canChangeGuide = false;
@@ -113,6 +114,20 @@ public class WorldsTeleop  extends LinearOpMode {
 
                 dumperExtensionPower = -1 * gamepad1.right_stick_y;
 
+            }
+
+            if (gamepad2.left_stick_y > 0.2) {
+                robot.intakeliftright.setPosition(0);
+                robot.intakeliftleft.setPosition(0);
+            } else if (gamepad2.left_stick_y < -0.2) {
+                robot.intakeliftright.setPosition(1);
+                robot.intakeliftleft.setPosition(1);
+            }
+
+            if (gamepad2.right_bumper) {
+                rotate(DPAD_SPEED);
+            } else if (gamepad2.left_bumper) {
+                rotate(-DPAD_SPEED);
             }
 
             if (gamepad1.y) {
@@ -208,8 +223,7 @@ public class WorldsTeleop  extends LinearOpMode {
             robot.intakeextension.setPower(intakeExtensionPower);
         }
 
-        robot.intakeliftright.setPosition(-intakelift * 0.02 + robot.intakeliftright.getPosition());
-        robot.intakeliftleft.setPosition(-intakelift * 0.02 + robot.intakeliftleft.getPosition());
+
     }
 
     private GameMode nextMode(GameMode m) {
