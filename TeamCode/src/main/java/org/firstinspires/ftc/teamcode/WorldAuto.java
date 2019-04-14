@@ -174,7 +174,7 @@ public class WorldAuto extends LinearOpMode {
             if (position == -1) {
                 rotate(60, 0.5);
             } else if (position == 1) {
-                rotate(120, 0.5);
+                rotate(115, 0.5);
             } else {
                 rotate(90, 0.5);
             }
@@ -190,6 +190,9 @@ public class WorldAuto extends LinearOpMode {
             sleep(400);
             robot.dumperextension.setPower(-0.5);
             sleep(400);
+            if (position != 0) {
+                sleep(100);
+            }
             robot.dumperextension.setPower(0);
             sleep(200);
             robot.intake.setPower(0);
@@ -208,7 +211,7 @@ public class WorldAuto extends LinearOpMode {
             if (position == -1) {
                 rotate(30, 0.5);
             } else if (position == 1) {
-                rotate(-30, 0.5);
+                rotate(-25, 0.5);
             } else {
 //                rotate(-10, 0.5);
             }
@@ -230,6 +233,8 @@ public class WorldAuto extends LinearOpMode {
             robot.dumperextension.setPower(1);
             sleep(500);
             robot.dumperextension.setPower(0);
+            LowerDumperExtension lowerDumperExtension = new LowerDumperExtension(1200, 0.25);
+            lowerDumperExtension.start();
             moveTank(MOVE_SPEED, 30, 30, 10);
             strafe(STRAFE_SPEED, 7, 10);
             ExtendDumper extendDumper = new ExtendDumper();
@@ -239,9 +244,10 @@ public class WorldAuto extends LinearOpMode {
             moveTank(MOVE_SPEED, -6, -6, 5);
             robot.dumper.setPosition(0);
             sleep(1200);
+            robot.dumper.setPosition(1);
 
-            LowerDumperExtension lowerDumperExtension = new LowerDumperExtension();
-            lowerDumperExtension.start();
+            LowerDumperExtension lowerDumperExtension2 = new LowerDumperExtension(2000, 0.5);
+            lowerDumperExtension2.start();
             encoderRotate(70, 1);
 
             MoveRobotForward moveRobotForward = new MoveRobotForward();
@@ -569,16 +575,20 @@ public class WorldAuto extends LinearOpMode {
     class LowerDumperExtension implements Runnable {
         private Thread t;
         private String threadName;
+        private long ms;
+        private double power;
 
-        LowerDumperExtension() {
+        LowerDumperExtension(long ms, double power) {
             threadName = "a";
             System.out.println("Creating " +  threadName );
+            this.ms = ms;
+            this.power = power;
         }
 
         public void run() {
             System.out.println("Running " +  threadName );
-            robot.dumperextension.setPower(-0.5);
-            sleep(1000);
+            robot.dumperextension.setPower(-this.power);
+            sleep(ms);
             robot.dumperextension.setPower(0);
         }
 
@@ -653,7 +663,7 @@ public class WorldAuto extends LinearOpMode {
 
         public void run() {
             robot.dumperextension.setPower(1);
-            sleep(1000);
+            sleep(1500);
             robot.dumperextension.setPower(0);
         }
 
