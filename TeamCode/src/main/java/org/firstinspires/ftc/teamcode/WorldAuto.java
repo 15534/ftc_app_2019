@@ -174,7 +174,7 @@ public class WorldAuto extends LinearOpMode {
             if (position == -1) {
                 rotate(60, 0.5);
             } else if (position == 1) {
-                rotate(115, 0.5);
+                rotate(120, 0.5);
             } else {
                 rotate(90, 0.5);
             }
@@ -211,7 +211,7 @@ public class WorldAuto extends LinearOpMode {
             if (position == -1) {
                 rotate(30, 0.5);
             } else if (position == 1) {
-                rotate(-25, 0.5);
+                rotate(-30, 0.5);
             } else {
 //                rotate(-10, 0.5);
             }
@@ -663,7 +663,9 @@ public class WorldAuto extends LinearOpMode {
 
         public void run() {
             robot.dumperextension.setPower(1);
-            sleep(1500);
+            sleep(1000);
+            robot.dumperextension.setPower(0.5);
+            sleep(300);
             robot.dumperextension.setPower(0);
         }
 
