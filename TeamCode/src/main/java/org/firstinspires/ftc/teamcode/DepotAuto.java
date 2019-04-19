@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -10,21 +9,19 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.MotionDetection;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.internal.ftdi.eeprom.FT_EEPROM_232H;
 
-import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.List;
-@Autonomous(name = "WorldAuto", group = "World Bot")
-public class WorldAuto extends LinearOpMode {
+
+@Autonomous(name = "Depot Auto", group = "World Bot")
+public class DepotAuto extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
@@ -117,8 +114,10 @@ public class WorldAuto extends LinearOpMode {
 
             runtime.reset();
 
+            sleep(400);
+
             // detect mineral position
-            while (opModeIsActive() && runtime.seconds() < 1) {
+            while (opModeIsActive() && runtime.seconds() < 2) {
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
                     int goldMineralX = -1;
                     if (updatedRecognitions != null) {
@@ -220,11 +219,10 @@ public class WorldAuto extends LinearOpMode {
 
 //            sleep(200);
 
-            rotate(90, 0.5);
-            moveTank(MOVE_SPEED, -36, -36, 10);
+            rotate(-90, 0.5);
+            moveTank(MOVE_SPEED, 34, 34, 10);
             encoderRotate(-48, TURN_SPEED);
-            strafeTime(-0.5, 500);
-            strafe(STRAFE_SPEED, 2, 5);
+            strafe(STRAFE_SPEED, 3, 3);
             moveTank(MOVE_SPEED, -24, -24, 10);
             double distance = robot.backsensor.getDistance(DistanceUnit.INCH);
             telemetry.addData("distance", distance);
@@ -236,20 +234,7 @@ public class WorldAuto extends LinearOpMode {
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension(1200, 0.25);
             lowerDumperExtension.start();
             moveTank(MOVE_SPEED, 30, 30, 10);
-            strafe(STRAFE_SPEED, 7, 10);
-            ExtendDumper extendDumper = new ExtendDumper();
-            extendDumper.start();
-            encoderRotate(-85, MOVE_SPEED);
-            sleep(100);
-            moveTank(MOVE_SPEED, -6, -6, 5);
-            robot.dumper.setPosition(0);
-            sleep(1200);
-            robot.dumper.setPosition(1);
-
-            LowerDumperExtension lowerDumperExtension2 = new LowerDumperExtension(2000, 0.5);
-            lowerDumperExtension2.start();
-            encoderRotate(70, 1);
-
+            strafe(STRAFE_SPEED, -1, 3);
             MoveRobotForward moveRobotForward = new MoveRobotForward();
             moveRobotForward.start();
             robot.intakeextension.setPower(-1);
