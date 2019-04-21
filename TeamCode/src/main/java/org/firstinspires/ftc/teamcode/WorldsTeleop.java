@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.Locale;
 
@@ -20,6 +21,8 @@ public class WorldsTeleop  extends LinearOpMode {
     static final double     STRAFE_SPEED            = 0.4;
     static final double     DETECT_SPEED            = 0.1;
     static final double     PUSH_SPEED              = 0.2;
+    static final double     intakePeriod            = 1.2;
+//    static final double     intakePeriod            = 0.5;
     static final long       MOVE_DELAY              = 250;
 
     private final double DPAD_SPEED = 0.45;
@@ -47,14 +50,16 @@ public class WorldsTeleop  extends LinearOpMode {
     private boolean canChangePower = true;
 
     private boolean debugMode = false;
+    private ElapsedTime runtime = new ElapsedTime();
+    private int intakeDirection = 0;  // -1: intake, 1: release;
 
     @Override
     public void runOpMode(){
         robot.init(hardwareMap);
-        robot.intakeextension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         telemetry.addData(">", "Init Successful");
         telemetry.update();
         waitForStart();
+        robot.intakeextension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         while (opModeIsActive()) {
             if (gamepad1.start && canChangeGuide) {
                 gameMode = nextMode(gameMode);
@@ -142,20 +147,20 @@ public class WorldsTeleop  extends LinearOpMode {
             intake = -INTAKE_POWER_ADJUST * gamepad2.left_stick_y;
 
             if (gamepad2.a) {
-                robot.intake.setPower(-0.8);
+                intakeDirection = -1;
             }
             if (gamepad2.y) {
-                robot.intake.setPower(-0.1);
+                intakeDirection = -2;
             }
             if (gamepad2.b){
-                robot.intake.setPower(0.8);
+                intakeDirection = 1;
             }
             if (gamepad2.x){
-                robot.intake.setPower(0);
+                intakeDirection = 0;
             }
 
             if(intakeExtensionPower > 0){
-                robot.intake.setPower(0);
+                intakeDirection = 0;
             }
 
             updateMotors();
@@ -221,6 +226,30 @@ public class WorldsTeleop  extends LinearOpMode {
 //            robot.intakeright.setPower(intakeRightPower);
 //            robot.intakeleft.setPower(intakeLeftPower);
             robot.intakeextension.setPower(intakeExtensionPower);
+        }
+
+        switch (intakeDirection) {
+            case 0:
+                robot.intake.setPower(0);
+                break;
+            case -1:
+//                if (runtime.seconds() % intakePeriod < (intakePeriod * 0.8))
+//                    robot.intake.setPower(-0.8);
+//                else
+//                    robot.intake.setPower(0);
+//                break;
+                robot.intake.setPower((runtime.seconds() % intakePeriod) / intakePeriod * -0.8);
+//                if (runtime.seconds() % intakePeriod < (intakePeriod * 0.8))
+//                    robot.intake.setPower((runtime.seconds() % intakePeriod) / intakePeriod * -0.8);
+//                else
+//                    robot.intake.setPower(0);
+                break;
+            case -2:
+                robot.intake.setPower(-0.1);
+                break;
+            case 1:
+                robot.intake.setPower(0.8);
+                break;
         }
 
 
