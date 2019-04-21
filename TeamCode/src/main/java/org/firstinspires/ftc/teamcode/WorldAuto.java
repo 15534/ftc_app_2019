@@ -161,7 +161,7 @@ public class WorldAuto extends LinearOpMode {
              telemetry.addData("bottom", bottom);
              telemetry.update();
             }
-            sleep(400);
+            sleep(200);
             robot.actuator.setPower(0);
 
             moveTank(MOVE_SPEED, -3, -3, 3);
@@ -209,18 +209,18 @@ public class WorldAuto extends LinearOpMode {
             intakeMineralExtension.start();
 
             if (position == -1) {
-                rotate(30, 0.5);
+                rotate(120, 0.5);
             } else if (position == 1) {
-                rotate(-30, 0.5);
+                rotate(60, 0.5);
             } else {
-//                rotate(-10, 0.5);
+                rotate(90, 0.5);
             }
 
-            moveTank(0.5, 6, 6, 5);
+            strafe(MOVE_SPEED, -13, 5);
 
 //            sleep(200);
 
-            rotate(90, 0.5);
+//            rotate(90, 0.5);
             moveTank(MOVE_SPEED, -36, -36, 10);
             encoderRotate(-48, TURN_SPEED);
             strafeTime(-0.5, 500);
@@ -230,8 +230,8 @@ public class WorldAuto extends LinearOpMode {
             telemetry.addData("distance", distance);
             telemetry.update();
             moveTank(MOVE_SPEED, -(distance - 21), -(distance-21), 5);
-            robot.dumperextension.setPower(1);
-            sleep(500);
+            robot.dumperextension.setPower(0.5);
+            sleep(1000);
             robot.dumperextension.setPower(0);
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension(1200, 0.25);
             lowerDumperExtension.start();
@@ -239,11 +239,11 @@ public class WorldAuto extends LinearOpMode {
             strafe(STRAFE_SPEED, 7, 10);
             ExtendDumper extendDumper = new ExtendDumper();
             extendDumper.start();
-            encoderRotate(-85, MOVE_SPEED);
+            encoderRotate(-85, 0.5);
             sleep(100);
             moveTank(MOVE_SPEED, -6, -6, 5);
             robot.dumper.setPosition(0);
-            sleep(1200);
+            sleep(1000);
             robot.dumper.setPosition(1);
 
             LowerDumperExtension lowerDumperExtension2 = new LowerDumperExtension(2000, 0.5);
@@ -498,7 +498,7 @@ public class WorldAuto extends LinearOpMode {
             }
 
     public void encoderRotate(double degrees, double speed) {
-        double leftInches = degrees / 360 * 2 * Math.PI * 9.3;
+        double leftInches = degrees / 360 * 2 * Math.PI * 9.4;
         moveTank(speed, leftInches, -leftInches, 5);
     }
 
@@ -661,8 +661,8 @@ public class WorldAuto extends LinearOpMode {
         }
 
         public void run() {
-            robot.dumperextension.setPower(1);
-            sleep(1000);
+            robot.dumperextension.setPower(0.75);
+            sleep(1300);
             robot.dumperextension.setPower(0.5);
             sleep(300);
             robot.dumperextension.setPower(0);
