@@ -161,7 +161,7 @@ public class WorldAuto extends LinearOpMode {
              telemetry.addData("bottom", bottom);
              telemetry.update();
             }
-            sleep(300);
+            sleep(400);
             robot.actuator.setPower(0);
 
             moveTank(MOVE_SPEED, -3, -3, 3);
@@ -225,7 +225,7 @@ public class WorldAuto extends LinearOpMode {
             encoderRotate(-48, TURN_SPEED);
             strafeTime(-0.5, 500);
             strafe(STRAFE_SPEED, 2, 5);
-            moveTank(MOVE_SPEED, -24, -24, 10);
+            moveTank(MOVE_SPEED, -27, -27, 10);
             double distance = robot.backsensor.getDistance(DistanceUnit.INCH);
             telemetry.addData("distance", distance);
             telemetry.update();
@@ -612,10 +612,9 @@ public class WorldAuto extends LinearOpMode {
         public void run() {
             robot.intakeextension.setPower(1);
             sleep(200);
-            robot.intakeextension.setPower(0);
             robot.intake.setPower(0);
             robot.intakeextension.setPower(0.5);
-            sleep(1000);
+            sleep(2000);
             robot.intakeextension.setPower(0);
             robot.intake.setPower(-0.3);
             sleep(1000);
