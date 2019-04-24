@@ -161,7 +161,7 @@ public class WorldAuto extends LinearOpMode {
              telemetry.addData("bottom", bottom);
              telemetry.update();
             }
-            sleep(200);
+            sleep(400);
             robot.actuator.setPower(0);
 
             moveTank(MOVE_SPEED, -3, -3, 3);
@@ -216,7 +216,7 @@ public class WorldAuto extends LinearOpMode {
                 rotate(90, 0.5);
             }
 
-            strafe(MOVE_SPEED, -13, 5);
+            strafe(MOVE_SPEED, -11, 5);
 
 //            sleep(200);
 
@@ -229,9 +229,9 @@ public class WorldAuto extends LinearOpMode {
             double distance = robot.backsensor.getDistance(DistanceUnit.INCH);
             telemetry.addData("distance", distance);
             telemetry.update();
-            moveTank(MOVE_SPEED, -(distance - 21), -(distance-21), 5);
-            robot.dumperextension.setPower(0.5);
-            sleep(1000);
+            moveTank(MOVE_SPEED, -(distance - 18), -(distance-18), 5);
+            robot.dumperextension.setPower(0.8);
+            sleep(700);
             robot.dumperextension.setPower(0);
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension(1200, 0.25);
             lowerDumperExtension.start();
@@ -239,11 +239,11 @@ public class WorldAuto extends LinearOpMode {
             strafe(STRAFE_SPEED, 7, 10);
             ExtendDumper extendDumper = new ExtendDumper();
             extendDumper.start();
-            encoderRotate(-85, 0.5);
-            sleep(100);
-            moveTank(MOVE_SPEED, -6, -6, 5);
+            encoderRotate(-65, 0.4);
+            encoderRotate(-20, 0.2);
+            moveTank(0.5, -6, -6, 5);
             robot.dumper.setPosition(0);
-            sleep(1000);
+            sleep(800);
             robot.dumper.setPosition(1);
 
             LowerDumperExtension lowerDumperExtension2 = new LowerDumperExtension(2000, 0.5);
@@ -661,10 +661,13 @@ public class WorldAuto extends LinearOpMode {
         }
 
         public void run() {
-            robot.dumperextension.setPower(0.75);
-            sleep(1300);
-            robot.dumperextension.setPower(0.5);
             sleep(300);
+            robot.dumperextension.setPower(0.75);
+            sleep(800);
+            robot.dumperextension.setPower(0.5);
+            sleep(400);
+            robot.dumperextension.setPower(0.2);
+            sleep(200);
             robot.dumperextension.setPower(0);
         }
 

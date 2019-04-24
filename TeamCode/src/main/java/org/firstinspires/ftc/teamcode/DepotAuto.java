@@ -234,7 +234,8 @@ public class DepotAuto extends LinearOpMode {
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension(1200, 0.25);
             lowerDumperExtension.start();
             moveTank(MOVE_SPEED, 30, 30, 10);
-            strafe(STRAFE_SPEED, -1, 3);
+            strafe(STRAFE_SPEED, -3, 3);
+            moveTank(MOVE_SPEED, 54, 54, 10);
             MoveRobotForward moveRobotForward = new MoveRobotForward();
             moveRobotForward.start();
             robot.intakeextension.setPower(-1);
@@ -483,7 +484,7 @@ public class DepotAuto extends LinearOpMode {
             }
 
     public void encoderRotate(double degrees, double speed) {
-        double leftInches = degrees / 360 * 2 * Math.PI * 9.3;
+        double leftInches = degrees / 360 * 2 * Math.PI * 9.4;
         moveTank(speed, leftInches, -leftInches, 5);
     }
 
