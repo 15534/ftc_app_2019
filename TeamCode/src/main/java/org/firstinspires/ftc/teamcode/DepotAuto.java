@@ -182,8 +182,8 @@ public class DepotAuto extends LinearOpMode {
 //            robot.intakeliftleft.setPosition(1.0);
 //            robot.intakeliftright.setPosition(1.0);
 //            sleep(1000);
-            // spin in
-            robot.intake.setPower(-0.3);
+            // spin out
+            robot.intake.setPower(0.3);
             // extend intake
             robot.intakeextension.setPower(-1);
             sleep(400);
@@ -202,11 +202,10 @@ public class DepotAuto extends LinearOpMode {
             robot.intakeliftright.setPosition(0.3);
             // retract intake
             robot.intakeextension.setPower(1);
-            sleep(500);
-
-            IntakeMineralExtension intakeMineralExtension = new IntakeMineralExtension();
-            intakeMineralExtension.start();
-
+            sleep(1000);
+            robot.intakeextension.setPower(0.5);
+            sleep(1000);
+            robot.intakeextension.setPower(0);
             if (position == -1) {
                 rotate(30, 0.5);
             } else if (position == 1) {
@@ -221,19 +220,20 @@ public class DepotAuto extends LinearOpMode {
 
             rotate(-90, 0.5);
             moveTank(MOVE_SPEED, 34, 34, 10);
+            robot.phone.setPosition(0.5);
             encoderRotate(-48, TURN_SPEED);
             strafe(STRAFE_SPEED, 3, 3);
             moveTank(MOVE_SPEED, -24, -24, 10);
             double distance = robot.backsensor.getDistance(DistanceUnit.INCH);
             telemetry.addData("distance", distance);
             telemetry.update();
-            moveTank(MOVE_SPEED, -(distance - 21), -(distance-21), 5);
+            moveTank(MOVE_SPEED, -(distance - 18), -(distance-18), 5);
             robot.dumperextension.setPower(1);
             sleep(500);
             robot.dumperextension.setPower(0);
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension(1200, 0.25);
             lowerDumperExtension.start();
-            moveTank(MOVE_SPEED, 30, 30, 10);
+            moveTank(MOVE_SPEED, 33, 33, 10);
             strafe(STRAFE_SPEED, -3, 3);
             moveTank(MOVE_SPEED, 54, 54, 10);
             MoveRobotForward moveRobotForward = new MoveRobotForward();

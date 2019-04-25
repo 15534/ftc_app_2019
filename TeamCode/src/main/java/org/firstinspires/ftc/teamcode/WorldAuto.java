@@ -111,7 +111,7 @@ public class WorldAuto extends LinearOpMode {
             robot.dumper.setPosition(1);
             sleep(200);
             robot.phone.setPosition(0);
-            sleep(500);
+            sleep(600);
             int position = -1;
             int goldMineralY = -1;
 
@@ -225,22 +225,22 @@ public class WorldAuto extends LinearOpMode {
             encoderRotate(-48, TURN_SPEED);
             strafeTime(-0.5, 500);
             strafe(STRAFE_SPEED, 2, 5);
-            moveTank(MOVE_SPEED, -27, -27, 10);
+            moveTank(MOVE_SPEED, -24, -24, 10);
             double distance = robot.backsensor.getDistance(DistanceUnit.INCH);
             telemetry.addData("distance", distance);
             telemetry.update();
             moveTank(MOVE_SPEED, -(distance - 18), -(distance-18), 5);
             robot.dumperextension.setPower(0.8);
-            sleep(700);
+            sleep(800);
             robot.dumperextension.setPower(0);
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension(1200, 0.25);
             lowerDumperExtension.start();
-            moveTank(MOVE_SPEED, 30, 30, 10);
+            moveTank(MOVE_SPEED, 32, 32, 10);
             strafe(STRAFE_SPEED, 7, 10);
             ExtendDumper extendDumper = new ExtendDumper();
             extendDumper.start();
             encoderRotate(-65, 0.4);
-            encoderRotate(-20, 0.2);
+            encoderRotate(-15, 0.2);
             moveTank(0.5, -6, -6, 5);
             robot.dumper.setPosition(0);
             sleep(800);
