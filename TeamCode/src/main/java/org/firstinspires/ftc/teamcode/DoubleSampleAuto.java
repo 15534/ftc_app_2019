@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -10,21 +9,19 @@ import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.MotionDetection;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.internal.ftdi.eeprom.FT_EEPROM_232H;
 
-import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.List;
-@Autonomous(name = "WorldAuto", group = "World Bot")
-public class WorldAuto extends LinearOpMode {
+
+@Autonomous(name = "Double Sample Auto", group = "World Bot")
+public class DoubleSampleAuto extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "RoverRuckus.tflite";
     private static final String LABEL_GOLD_MINERAL = "Gold Mineral";
     private static final String LABEL_SILVER_MINERAL = "Silver Mineral";
@@ -39,8 +36,8 @@ public class WorldAuto extends LinearOpMode {
     static final double     COUNTS_PER_INCH         = COUNTS_PER_MOTOR_REV /
             (WHEEL_DIAMETER_INCHES * 3.1415);
 
-    static final double     STRAFE_SPEED            = 0.9;
-    static final double     MOVE_SPEED              = 0.9;
+    static final double     STRAFE_SPEED            = 1;
+    static final double     MOVE_SPEED              = 1;
     static final double     TURN_SPEED              = 0.6;
 
 
@@ -86,23 +83,6 @@ public class WorldAuto extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-//        dump routine
-//        robot.dumper.setPosition(1);
-//        sleep(500);
-//        // bring down while getting mineral
-//        robot.dumperextension.setPower(-0.5);
-//        sleep(400);
-//        robot.dumperextension.setPower(0);
-//        robot.intake.setPower(-0.3);
-//        sleep(1000);
-//        robot.intake.setPower(0);
-//        robot.dumperextension.setPower(1);
-//        sleep(1000);
-//        robot.dumperextension.setPower(0);
-//
-//
-//        robot.dumper.setPosition(0);
-
         if (opModeIsActive()) {
             robot.dumperextension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             robot.intakeliftleft.setPosition(1.0);
@@ -111,7 +91,7 @@ public class WorldAuto extends LinearOpMode {
             robot.dumper.setPosition(1);
             sleep(200);
             robot.phone.setPosition(0);
-            sleep(600);
+            sleep(700);
             int position = -1;
             int goldMineralY = -1;
 
@@ -183,18 +163,15 @@ public class WorldAuto extends LinearOpMode {
 //            robot.intakeliftleft.setPosition(1.0);
 //            robot.intakeliftright.setPosition(1.0);
 //            sleep(1000);
-            // spin in
-            robot.intake.setPower(-0.3);
+            // spin out
+            robot.intake.setPower(0.3);
             // extend intake
             robot.intakeextension.setPower(-1);
-            sleep(400);
-            robot.dumperextension.setPower(-0.5);
-            sleep(400);
+            sleep(800);
             if (position != 0) {
                 sleep(100);
             }
             robot.dumperextension.setPower(0);
-            sleep(200);
             robot.intake.setPower(0);
             robot.intakeextension.setPower(0);
 //            sleep(200);
@@ -235,25 +212,67 @@ public class WorldAuto extends LinearOpMode {
             robot.dumperextension.setPower(0);
             LowerDumperExtension lowerDumperExtension = new LowerDumperExtension(1200, 0.25);
             lowerDumperExtension.start();
-            moveTank(MOVE_SPEED, 32, 32, 10);
-            strafe(STRAFE_SPEED, 7, 10);
-            ExtendDumper extendDumper = new ExtendDumper();
-            extendDumper.start();
-            encoderRotate(-65, 0.4);
-            encoderRotate(-15, 0.2);
-            moveTank(0.5, -8, -8, 5);
-            robot.dumper.setPosition(0);
-            sleep(800);
-            robot.dumper.setPosition(1);
 
-            LowerDumperExtension lowerDumperExtension2 = new LowerDumperExtension(2000, 0.5);
-            lowerDumperExtension2.start();
-            encoderRotate(70, 1);
+            if (position == -1) {
+                moveTank(MOVE_SPEED, -6, -6, 10);
+                strafe(MOVE_SPEED, 6, 10);
+                encoderRotate(80, TURN_SPEED);
+            } else if (position == 0) {
+                rotate(70, TURN_SPEED);
+            }
+
+            if (position != 1) {
+                // spin out
+                robot.intake.setPower(0.3);
+                robot.intakeliftleft.setPosition(1.0);
+                robot.intakeliftright.setPosition(1.0);
+                if (position == 0) {
+                    sleep(200);
+                }
+                // extend intake
+                robot.intakeextension.setPower(-1);
+                sleep(600);
+                robot.intake.setPower(0);
+                robot.intakeextension.setPower(0);
+//            sleep(200);
+                // raise intake
+                robot.intakeliftleft.setPosition(0.3);
+                robot.intakeliftright.setPosition(0.3);
+                // retract intake
+                robot.intakeextension.setPower(1);
+                robot.intakeliftleft.setPosition(0.3);
+                robot.intakeliftright.setPosition(0.3);
+                sleep(500);
+            }
+
+
+
+            if (position == -1) {
+                encoderRotate(-80, TURN_SPEED);
+                strafe(MOVE_SPEED, -6, 10);
+                moveTank(MOVE_SPEED, 6, 6, 10);
+            } else if (position == 0) {
+                encoderRotate(-70, TURN_SPEED);
+            }
+            if (position == 1) {
+                strafe(MOVE_SPEED, 12, 10);
+                moveTank(MOVE_SPEED, 12, 12, 10);
+                strafe(MOVE_SPEED, -12, 10);
+                robot.intakeextension.setPower(-1);
+                robot.intakeliftleft.setPosition(0.0);
+                robot.intakeliftright.setPosition(0.0);
+
+                moveTank(MOVE_SPEED, 28, 28, 10);
+            } else {
+                robot.intakeextension.setPower(-1);
+                robot.intakeliftleft.setPosition(0.0);
+                robot.intakeliftright.setPosition(0.0);
+
+                moveTank(MOVE_SPEED, 40, 40, 10);
+            }
 
             MoveRobotForward moveRobotForward = new MoveRobotForward();
             moveRobotForward.start();
-            robot.intakeextension.setPower(-1);
-            sleep(500);
             robot.intakeextension.setPower(0);
 
             // drop intake
